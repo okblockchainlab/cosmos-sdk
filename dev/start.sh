@@ -3,7 +3,6 @@
 BASEPORT=20056
 
 
-
 function start {
     for ((index=0; index<${1}; index++)) do
         let p2pport=${BASEPORT}+${index}*100

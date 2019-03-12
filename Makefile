@@ -78,29 +78,23 @@ ifeq ($(OS),Windows_NT)
 	go build $(BUILD_FLAGS) -o build/gaiad.exe ./cmd/gaia/cmd/gaiad
 	go build $(BUILD_FLAGS) -o build/gaiacli.exe ./cmd/gaia/cmd/gaiacli
 else
-	go build $(BUILD_FLAGS) -o build/gaiad ./cmd/gaia/cmd/gaiad
-	go build $(BUILD_FLAGS) -o build/gaiacli ./cmd/gaia/cmd/gaiacli
-	go build $(BUILD_FLAGS) -o build/gaiareplay ./cmd/gaia/cmd/gaiareplay
-	go build $(BUILD_FLAGS) -o build/gaiakeyutil ./cmd/gaia/cmd/gaiakeyutil
+	go build $(BUILD_FLAGS) -o build/${GOOS}/gaiad ./cmd/gaia/cmd/gaiad
+	go build $(BUILD_FLAGS) -o build/${GOOS}/gaiacli ./cmd/gaia/cmd/gaiacli
+	go build $(BUILD_FLAGS) -o build/${GOOS}/gaiareplay ./cmd/gaia/cmd/gaiareplay
+	go build $(BUILD_FLAGS) -o build/${GOOS}/gaiakeyutil ./cmd/gaia/cmd/gaiakeyutil
 endif
 
-build_mac:
-	go build $(BUILD_FLAGS) -o buildmac/gaiad ./cmd/gaia/cmd/gaiad
-	go build $(BUILD_FLAGS) -o buildmac/gaiacli ./cmd/gaia/cmd/gaiacli
-	go build $(BUILD_FLAGS) -o buildmac/gaiareplay ./cmd/gaia/cmd/gaiareplay
-	go build $(BUILD_FLAGS) -o buildmac/gaiakeyutil ./cmd/gaia/cmd/gaiakeyutil
-
-build_gaiad:
-	go build $(BUILD_FLAGS) -o buildmac/gaiad ./cmd/gaia/cmd/gaiad
-
-build-linux: vendor-deps
+build-linux:
 	LEDGER_ENABLED=false GOOS=linux GOARCH=amd64 $(MAKE) build
 
 macgaiad:
-	LEDGER_ENABLED=false GOOS=darwin GOARCH=amd64 $(MAKE) build_gaiad
+	LEDGER_ENABLED=false GOOS=darwin GOARCH=amd64 $(MAKE) build_mac_gaiad
+
+build_gaiad:
+	go build $(BUILD_FLAGS) -o build/${GOOS}/gaiad ./cmd/gaia/cmd/gaiad
 
 mac:
-	LEDGER_ENABLED=false GOOS=darwin GOARCH=amd64 $(MAKE) build_mac
+	LEDGER_ENABLED=false GOOS=${GOOS} GOARCH=${GOARCH} $(MAKE) build
 
 update_gaia_lite_docs:
 	@statik -src=client/lcd/swagger-ui -dest=client/lcd -f
