@@ -87,8 +87,8 @@ endif
 build-linux:
 	LEDGER_ENABLED=false GOOS=linux GOARCH=amd64 $(MAKE) build
 
-macgaiad:
-	LEDGER_ENABLED=false GOOS=darwin GOARCH=amd64 $(MAKE) build_mac_gaiad
+gaiad:
+	LEDGER_ENABLED=false GOOS=${GOOS} GOARCH=amd64 $(MAKE) build_gaiad
 
 build_gaiad:
 	go build $(BUILD_FLAGS) -o build/${GOOS}/gaiad ./cmd/gaia/cmd/gaiad
@@ -288,9 +288,9 @@ dex-src:
 	./images/src/scripts/tardep.sh
 	docker build -t $(PROJECT_NAME)-src $(@D)
 
-dex-bin: gaiad gaiacli
+dex-bin: docker_gaiad docker_gaiacli
 
-gaiad:
+docker_gaiad:
 	@echo "Building $@"
 	@docker run -i \
     		--user=$(UID) \
@@ -298,7 +298,7 @@ gaiad:
     		okchain/dex-src:latest go install -ldflags "$(GO_LDFLAGS)" github.com/cosmos/cosmos-sdk/cmd/gaia/cmd/gaiad
 
 
-gaiacli:
+docker_gaiacli:
 	@echo "Building $@"
 	@docker run -i \
     		--user=$(UID) \
