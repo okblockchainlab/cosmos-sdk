@@ -50,3 +50,5 @@ dependency-graph.png
 build*
 *.tar.gz
 
+tendermint
+Dockerfile
