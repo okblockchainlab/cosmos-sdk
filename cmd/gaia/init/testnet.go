@@ -38,6 +38,7 @@ var (
 	flagNodeDaemonHome    = "node-daemon-home"
 	flagNodeCliHome       = "node-cli-home"
 	flagStartingIPAddress = "starting-ip-address"
+	flagBaseport          = "base-port"
 )
 
 const nodeDirPerm = 0755
@@ -62,6 +63,9 @@ Example:
 		},
 	}
 
+	cmd.Flags().Int(flagBaseport, 20056,
+		"testnet base port",
+	)
 	cmd.Flags().Int(flagNumValidators, 4,
 		"Number of validators to initialize the testnet with",
 	)
@@ -92,10 +96,19 @@ Example:
 }
 
 func initTestnet(config *tmconfig.Config, cdc *codec.Codec) error {
+
+	//fmt.Printf("initTestnet<%+v> \n\n", config)
+	//fmt.Printf("P2P<%+v> \n\n", config.P2P)
+	//fmt.Printf("RPC<%+v> \n\n", config.RPC)
+	//fmt.Printf("Mempool<%+v> \n\n", config.Mempool)
+	//fmt.Printf("Consensus<%+v> \n\n", config.Consensus)
+	//fmt.Printf("Instrumentation<%+v> \n", config.Instrumentation)
+
 	var chainID string
 
 	outDir := viper.GetString(flagOutputDir)
 	numValidators := viper.GetInt(flagNumValidators)
+	baseport := viper.GetInt(flagBaseport)
 
 	chainID = viper.GetString(client.FlagChainID)
 	if chainID == "" {
@@ -140,7 +153,7 @@ func initTestnet(config *tmconfig.Config, cdc *codec.Codec) error {
 		monikers = append(monikers, nodeDirName)
 		config.Moniker = nodeDirName
 
-		ip, err := getIP(i, viper.GetString(flagStartingIPAddress))
+		ip, err := getIP(0, viper.GetString(flagStartingIPAddress)) // okdex
 		if err != nil {
 			_ = os.RemoveAll(outDir)
 			return err
@@ -152,7 +165,8 @@ func initTestnet(config *tmconfig.Config, cdc *codec.Codec) error {
 			return err
 		}
 
-		memo := fmt.Sprintf("%s@%s:26656", nodeIDs[i], ip)
+		port := baseport + i * 100
+		memo := fmt.Sprintf("%s@%s:%d", nodeIDs[i], ip, port) // okdex
 		genFiles = append(genFiles, config.GenesisFile())
 
 		buf := client.BufferStdin()
@@ -252,7 +266,7 @@ func initTestnet(config *tmconfig.Config, cdc *codec.Codec) error {
 		return err
 	}
 
-	fmt.Printf("Successfully initialized %d node directories\n", numValidators)
+	//fmt.Printf("Successfully initialized %d node directories\n", numValidators)
 	return nil
 }
 

@@ -4,6 +4,7 @@ package init
 
 import (
 	"encoding/json"
+	"fmt"
 	"path/filepath"
 
 	"github.com/spf13/cobra"
@@ -100,6 +101,8 @@ func genAppStateFromConfig(
 
 	genTxs = make([]json.RawMessage, len(appGenTxs))
 	config.P2P.PersistentPeers = persistentPeers
+
+	fmt.Printf("persistentPeers: %s\n", persistentPeers)
 
 	for i, stdTx := range appGenTxs {
 		jsonRawTx, err = cdc.MarshalJSON(stdTx)

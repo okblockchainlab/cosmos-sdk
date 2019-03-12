@@ -387,11 +387,14 @@ func CollectStdTxs(cdc *codec.Codec, moniker string, genTxsDir string, genDoc tm
 		// exclude itself from persistent peers
 		if msg.Description.Moniker != moniker {
 			addressesIPs = append(addressesIPs, nodeAddrIP)
+			//fmt.Printf("nodeAddrIP: %s\n", nodeAddrIP)
 		}
+
 	}
 
 	sort.Strings(addressesIPs)
 	persistentPeers = strings.Join(addressesIPs, ",")
+	//fmt.Printf("\n\n\n\n")
 
 	return appGenTxs, persistentPeers, nil
 }

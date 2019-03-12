@@ -1,0 +1,7 @@
+FROM okchain/baseimage:latest
+#COPY images/src/scripts /okchain/baseimage/scripts
+#RUN /okchain/baseimage/scripts/getdep.sh
+#ADD github.tar.gz $GOPATH/src/github.com
+ADD cosmos-sdk.tar.bz2 $GOPATH/src/github.com/cosmos/cosmos-sdk
+ADD tendermint.tar.bz2 $GOPATH/src/github.com/tendermint/tendermint
+ADD src.tar.gz $GOPATH/src

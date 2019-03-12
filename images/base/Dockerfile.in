@@ -1,0 +1,6 @@
+FROM _DOCKER_BASE_
+COPY v3.0.2.tar.gz /okchain/baseimage/protobuf-3.0.2.tar.gz
+COPY scripts /okchain/baseimage/scripts
+RUN /okchain/baseimage/scripts/common/init.sh
+RUN /okchain/baseimage/scripts/docker/init.sh
+RUN /okchain/baseimage/scripts/common/setup.sh

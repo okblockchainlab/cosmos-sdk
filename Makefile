@@ -9,6 +9,9 @@ GOTOOLS = \
 	github.com/alecthomas/gometalinter \
 	github.com/rakyll/statik
 GOBIN ?= $(GOPATH)/bin
+PROJECT_NAME   = okchain/dex
+PROJECT_VERSION = 0.2
+DOCKER_TAG=$(shell uname -m)-$(PROJECT_VERSION)
 
 # process build tags
 
@@ -81,8 +84,23 @@ else
 	go build $(BUILD_FLAGS) -o build/gaiakeyutil ./cmd/gaia/cmd/gaiakeyutil
 endif
 
+build_mac:
+	go build $(BUILD_FLAGS) -o buildmac/gaiad ./cmd/gaia/cmd/gaiad
+	go build $(BUILD_FLAGS) -o buildmac/gaiacli ./cmd/gaia/cmd/gaiacli
+	go build $(BUILD_FLAGS) -o buildmac/gaiareplay ./cmd/gaia/cmd/gaiareplay
+	go build $(BUILD_FLAGS) -o buildmac/gaiakeyutil ./cmd/gaia/cmd/gaiakeyutil
+
+build_gaiad:
+	go build $(BUILD_FLAGS) -o buildmac/gaiad ./cmd/gaia/cmd/gaiad
+
 build-linux: vendor-deps
 	LEDGER_ENABLED=false GOOS=linux GOARCH=amd64 $(MAKE) build
+
+macgaiad:
+	LEDGER_ENABLED=false GOOS=darwin GOARCH=amd64 $(MAKE) build_gaiad
+
+mac:
+	LEDGER_ENABLED=false GOOS=darwin GOARCH=amd64 $(MAKE) build_mac
 
 update_gaia_lite_docs:
 	@statik -src=client/lcd/swagger-ui -dest=client/lcd -f
@@ -261,16 +279,48 @@ devdoc_clean:
 devdoc_update:
 	docker pull tendermint/devdoc
 
+dex-base:
+	@./images/provision/buildbase.sh 0.2
+
+dex-src:
+	@echo "Building docker src-image start:  $(@D)"
+	mkdir -p $(@D)
+	cat images/src/Dockerfile.in \
+		| sed -e 's/_TAG_/$(DOCKER_TAG)/g' \
+		> $(@D)/Dockerfile
+	(cd ../../tendermint/tendermint; git ls-files | tar -jcT - > $(@D)/tendermint.tar.bz2)
+	@mv ../../tendermint/tendermint/tendermint.tar.bz2 .
+	@git ls-files | tar -jcT - > $(@D)/cosmos-sdk.tar.bz2
+	./images/src/scripts/tardep.sh
+	docker build -t $(PROJECT_NAME)-src $(@D)
+
+dex-bin: gaiad gaiacli
+
+gaiad:
+	@echo "Building $@"
+	@docker run -i \
+    		--user=$(UID) \
+    		-v $(abspath build):/opt/gopath/bin \
+    		okchain/dex-src:latest go install -ldflags "$(GO_LDFLAGS)" github.com/cosmos/cosmos-sdk/cmd/gaia/cmd/gaiad
+
+
+gaiacli:
+	@echo "Building $@"
+	@docker run -i \
+    		--user=$(UID) \
+    		-v $(abspath build):/opt/gopath/bin \
+    		okchain/dex-src:latest go install -ldflags "$(GO_LDFLAGS)" github.com/cosmos/cosmos-sdk/cmd/gaia/cmd/gaiacli
+
 
 ########################################
 ### Local validator nodes using docker and docker-compose
 
-build-docker-gaiadnode:
+gnode:
 	$(MAKE) -C networks/local
 
 # Run a 4-node testnet locally
-localnet-start: localnet-stop
-	@if ! [ -f build/node0/gaiad/config/genesis.json ]; then docker run --rm -v $(CURDIR)/build:/gaiad:Z tendermint/gaiadnode testnet --v 4 -o . --starting-ip-address 192.168.10.2 ; fi
+localnet: localnet-stop
+	#@if ! [ -f build/node0/gaiad/config/genesis.json ]; then docker run --rm -v $(CURDIR)/build:/gaiad:Z tendermint/gaiadnode testnet --v 4 -o . --starting-ip-address 192.168.10.2 ; fi
 	docker-compose up -d
 
 # Stop testnet
@@ -294,4 +344,4 @@ build-linux build-docker-gaiadnode localnet-start localnet-stop \
 format check-ledger test_sim_gaia_nondeterminism test_sim_modules test_sim_gaia_fast \
 test_sim_gaia_custom_genesis_fast test_sim_gaia_custom_genesis_multi_seed \
 test_sim_gaia_multi_seed test_sim_gaia_import_export update_tools update_dev_tools \
-devtools-clean
+devtools-clean buildmac
