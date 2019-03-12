@@ -48,3 +48,5 @@ dependency-graph.png
 *.out
 *.synctex.gz
 build*
+*.tar.gz
+
