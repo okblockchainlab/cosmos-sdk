@@ -9,7 +9,7 @@
 .idea
 
 # Build
-vendor
+#vendor
 vendor-deps
 .vendor-new
 build
