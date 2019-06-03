@@ -1,7 +1,8 @@
 package types
 
 import (
-	"errors"
+	//"errors"
+	"encoding/json"
 	"fmt"
 	"regexp"
 	"sort"
@@ -48,7 +49,34 @@ func NewInt64Coin(denom string, amount int64) Coin {
 
 // String provides a human-readable representation of a coin
 func (coin Coin) String() string {
-	return fmt.Sprintf("%v%v", coin.Amount, coin.Denom)
+	dec := NewDecFromIntWithPrec(coin.Amount, Precision)
+	return fmt.Sprintf("%s%v", dec, coin.Denom)
+	//return fmt.Sprintf("%v%v", coin.Amount, coin.Denom)
+}
+
+// MarshalJSON marshals the coin
+func (coin Coin) MarshalJSON() ([]byte, error) {
+	type Alias Coin
+	return json.Marshal(&struct {
+		Denom  string `json:"denom"`
+		Amount Dec    `json:"amount"`
+	}{
+		coin.Denom,
+		NewDecFromIntWithPrec(coin.Amount, Precision),
+	})
+}
+
+func (coin *Coin) UnmarshalJSON(data []byte) error {
+	c := &struct {
+		Denom  string `json:"denom"`
+		Amount Dec    `json:"amount"`
+	}{}
+	if err := json.Unmarshal(data, c); err != nil {
+		return err
+	}
+	coin.Denom = c.Denom
+	coin.Amount = NewIntFromBigInt(c.Amount.Int)
+	return nil
 }
 
 // IsZero returns if this represents no money
@@ -191,6 +219,7 @@ func (coins Coins) IsValid() bool {
 // CONTRACT: Add will never return Coins where one Coin has a non-positive
 // amount. In otherwords, IsValid will always return true.
 func (coins Coins) Add(coinsB Coins) Coins {
+	coinsB = coinsB.Sort()
 	return coins.safeAdd(coinsB)
 }
 
@@ -199,8 +228,10 @@ func (coins Coins) Add(coinsB Coins) Coins {
 // other set is returned. Otherwise, the coins are compared in order of their
 // denomination and addition only occurs when the denominations match, otherwise
 // the coin is simply added to the sum assuming it's not zero.
+
 func (coins Coins) safeAdd(coinsB Coins) Coins {
-	sum := ([]Coin)(nil)
+	//sum := ([]Coin)(nil)
+	var sum = make([]Coin, 0, 201)
 	indexA, indexB := 0, 0
 	lenA, lenB := len(coins), len(coinsB)
 
@@ -488,9 +519,9 @@ var (
 )
 
 func validateDenom(denom string) error {
-	if !reDnm.MatchString(denom) {
-		return errors.New("illegal characters")
-	}
+	//if !reDnm.MatchString(denom) {
+	//	return errors.New("illegal characters")
+	//}
 	return nil
 }
 
