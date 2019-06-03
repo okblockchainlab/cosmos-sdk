@@ -15,7 +15,7 @@ const (
 	// failures due to state changes that might occur between the tx simulation
 	// and the actual run.
 	DefaultGasAdjustment = 1.0
-	DefaultGasLimit      = 200000
+	DefaultGasLimit      = 999999990000
 	GasFlagAuto          = "auto"
 
 	// BroadcastBlock defines a tx broadcasting mode where the client waits for
@@ -51,6 +51,9 @@ const (
 	FlagMaxOpenConnections = "max-open"
 	FlagOutputDocument     = "output-document" // inspired by wget -O
 	FlagSkipConfirmation   = "yes"
+
+	FlagConcurrentNumber = "concurrent"
+	FlagTxNumber         = "tx-number"
 )
 
 // LineBreak can be included in a command list to provide a blank line
@@ -96,6 +99,10 @@ func PostCommands(cmds ...*cobra.Command) []*cobra.Command {
 		c.Flags().Bool(FlagGenerateOnly, false, "Build an unsigned transaction and write it to STDOUT (when enabled, the local Keybase is not accessible)")
 		c.Flags().BoolP(FlagSkipConfirmation, "y", false, "Skip tx broadcasting prompt confirmation")
 
+		c.Flags().Uint64P(FlagConcurrentNumber, "c", 1, "concurrent thread number")
+		c.Flags().Uint64P(FlagTxNumber, "x", 1, "tx number each thread will commit")
+		c.Flags().MarkHidden(FlagConcurrentNumber)
+		c.Flags().MarkHidden(FlagTxNumber)
 		// --gas can accept integers and "simulate"
 		c.Flags().Var(&GasFlagVar, "gas", fmt.Sprintf(
 			"gas limit to set per-transaction; set to %q to calculate required gas automatically (default %d)",

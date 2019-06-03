@@ -72,8 +72,8 @@ type TxResponse struct {
 	RawLog    string          `json:"raw_log,omitempty"`
 	Logs      ABCIMessageLogs `json:"logs,omitempty"`
 	Info      string          `json:"info,omitempty"`
-	GasWanted int64           `json:"gas_wanted,omitempty"`
-	GasUsed   int64           `json:"gas_used,omitempty"`
+	GasWanted int64           `json:"-"`
+	GasUsed   int64           `json:"-"`
 	Tags      StringTags      `json:"tags,omitempty"`
 	Codespace string          `json:"codespace,omitempty"`
 	Tx        Tx              `json:"tx,omitempty"`
