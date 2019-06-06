@@ -116,13 +116,13 @@ func interceptLoadConfig() (conf *cfg.Config, err error) {
 	}
 
 	// create a default gaia config file if it does not exist
-	gaiaConfigFilePath := filepath.Join(rootDir, "config/gaiad.toml")
-	if _, err := os.Stat(gaiaConfigFilePath); os.IsNotExist(err) {
-		gaiaConf, _ := config.ParseConfig()
-		config.WriteConfigFile(gaiaConfigFilePath, gaiaConf)
+	okchainConfigFilePath := filepath.Join(rootDir, "config/okchaind.toml")
+	if _, err := os.Stat(okchainConfigFilePath); os.IsNotExist(err) {
+		okchainConf, _ := config.ParseConfig()
+		config.WriteConfigFile(okchainConfigFilePath, okchainConf)
 	}
 
-	viper.SetConfigName("gaiad")
+	viper.SetConfigName("okchaind")
 	err = viper.MergeInConfig()
 
 	return

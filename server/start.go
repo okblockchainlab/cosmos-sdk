@@ -2,7 +2,9 @@ package server
 
 import (
 	"fmt"
+
 	"github.com/ok-chain/okchain/util"
+	"github.com/ok-chain/okchain/x/stream"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
@@ -23,6 +25,7 @@ const (
 	flagTraceStore     = "trace-store"
 	flagPruning        = "pruning"
 	FlagMinGasPrices   = "minimum-gas-prices"
+	FlagBackend        = "backend"
 )
 
 // StartCmd runs the service passed in, either stand-alone or in-process with
@@ -53,6 +56,13 @@ func StartCmd(ctx *Context, appCreator AppCreator) *cobra.Command {
 		FlagMinGasPrices, "",
 		"Minimum gas prices to accept for transactions; Any fee in a tx must meet this minimum (e.g. 0.01photino;0.0001stake)",
 	)
+
+	cmd.Flags().BoolP(FlagBackend, "b", false, "enable the node's backend plugin")
+	cmd.Flags().String(stream.FlagStreamEngine, "",
+		fmt.Sprintf("config steam engine through --%s=analysis&mysql&mysqlurl,notify&redis&redisurl,kline&pulsar&pulsarurl", stream.FlagStreamEngine))
+	cmd.Flags().String(stream.FlagWorkerId, "worker0", fmt.Sprintf("config worker id"))
+	cmd.Flags().String(stream.FlagRedisScheduler, "", fmt.Sprintf("config redis scheduler through --%s=schedulerurl ", stream.FlagRedisScheduler))
+	cmd.Flags().String(stream.FlagRedisLock, "", fmt.Sprintf("config redis lock through --%s=redislockurl", stream.FlagRedisLock))
 
 	// add support for all Tendermint-specific command line options
 	tcmd.AddNodeFlags(cmd)
@@ -120,7 +130,7 @@ func startInProcess(ctx *Context, appCreator AppCreator) (*node.Node, error) {
 	}
 
 	UpgradeOldPrivValFile(cfg)
-	logger :=ctx.Logger.With("module", "node")
+	logger := ctx.Logger.With("module", "node")
 	// create & start tendermint node
 	tmNode, err := node.NewNode(
 		cfg,
@@ -157,6 +167,7 @@ func startInProcess(ctx *Context, appCreator AppCreator) (*node.Node, error) {
 		return nil, nil
 	}
 }
+
 var sem *nodeSemaphore
 
 type nodeSemaphore struct {

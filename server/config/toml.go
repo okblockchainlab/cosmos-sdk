@@ -17,13 +17,32 @@ const defaultConfigTemplate = `# This is a TOML config file.
 # transaction. A transaction's fees must meet the minimum of any denomination
 # specified in this config (e.g. 0.25token1;0.0001token2).
 minimum-gas-prices = "{{ .BaseConfig.MinGasPrices }}"
+
+##### backend configuration options #####
+[backend]
+
+hot_kept_days = "{{ .BackEndCfg.HotKeptDays }}"
+
+update_freq = "{{ .BackEndCfg.UpdateFreq }}"
+
+buffer_size = "{{ .BackEndCfg.BufferSize }}"
+
+sync_mode = "{{ .BackEndCfg.SyncMode }}"
+
+log_sql = "{{ .BackEndCfg.LogSQL }}"
+
+clean_ups_kept_days = "{{ .BackEndCfg.CleanUpsKeptDays }}"
+
+clean_ups_time = "{{ .BackEndCfg.CleanUpsTime }}"
+
+orm_engine = "{{ .BackEndCfg.OrmEngine }}"
 `
 
 var configTemplate *template.Template
 
 func init() {
 	var err error
-	tmpl := template.New("gaiaConfigFileTemplate")
+	tmpl := template.New("okchainConfigFileTemplate")
 	if configTemplate, err = tmpl.Parse(defaultConfigTemplate); err != nil {
 		panic(err)
 	}

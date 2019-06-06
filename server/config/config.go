@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/ok-chain/okchain/x/backend"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -22,6 +24,7 @@ type BaseConfig struct {
 // Config defines the server's top level configuration
 type Config struct {
 	BaseConfig `mapstructure:",squash"`
+	BackEndCfg *backend.MaintainConf `mapstructure:"backend"`
 }
 
 // SetMinGasPrices sets the validator's minimum gas prices.
@@ -53,9 +56,11 @@ func (c *Config) GetMinGasPrices() sdk.DecCoins {
 
 // DefaultConfig returns server's default configuration.
 func DefaultConfig() *Config {
+	backConf, _ := backend.GetDefaultMaintainConfig()
 	return &Config{
 		BaseConfig{
 			MinGasPrices: defaultMinGasPrices,
 		},
+		backConf,
 	}
 }
