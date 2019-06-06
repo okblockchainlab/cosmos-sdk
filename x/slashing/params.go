@@ -74,10 +74,6 @@ func (p *Params) ParamSetPairs() params.ParamSetPairs {
 	}
 }
 
-func (p *Params) ValidateKV(key string, value string) (interface{}, sdk.Error) {
-	return nil, nil
-}
-
 // Default parameters for this module
 func DefaultParams() Params {
 	return Params{
