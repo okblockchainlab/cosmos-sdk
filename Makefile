@@ -87,11 +87,17 @@ build-linux: vendor-deps
 update_gaia_lite_docs:
 	@statik -src=client/lcd/swagger-ui -dest=client/lcd -f
 
-install: vendor-deps check-ledger update_gaia_lite_docs
+install_org: vendor-deps check-ledger update_gaia_lite_docs
 	go install $(BUILD_FLAGS) ./cmd/gaia/cmd/gaiad
 	go install $(BUILD_FLAGS) ./cmd/gaia/cmd/gaiacli
 	go install $(BUILD_FLAGS) ./cmd/gaia/cmd/gaiareplay
 	go install $(BUILD_FLAGS) ./cmd/gaia/cmd/gaiakeyutil
+
+install:
+	go install ./cmd/gaia/cmd/gaiad
+	go install ./cmd/gaia/cmd/gaiacli
+	go install ./cmd/gaia/cmd/gaiareplay
+	go install ./cmd/gaia/cmd/gaiakeyutil
 
 install_debug:
 	go install $(BUILD_FLAGS) ./cmd/gaia/cmd/gaiadebug
@@ -295,3 +301,4 @@ format check-ledger test_sim_gaia_nondeterminism test_sim_modules test_sim_gaia_
 test_sim_gaia_custom_genesis_fast test_sim_gaia_custom_genesis_multi_seed \
 test_sim_gaia_multi_seed test_sim_gaia_import_export update_tools update_dev_tools \
 devtools-clean
+
