@@ -8,7 +8,9 @@
 .vscode
 .idea
 *.pyc
-
+cache
+git
+cmd/gaia/cmd/gaiad/gaiad
 # Build
 vendor
 build
