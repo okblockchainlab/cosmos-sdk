@@ -72,6 +72,10 @@ ci: tools install test_cover lint test
 ########################################
 ### Build/Install
 
+install2:
+	go install -mod=readonly $(BUILD_FLAGS) ./cmd/gaia/cmd/gaiad
+	go install -mod=readonly $(BUILD_FLAGS) ./cmd/gaia/cmd/gaiacli
+
 build: go.sum
 ifeq ($(OS),Windows_NT)
 	go build -mod=readonly $(BUILD_FLAGS) -o build/gaiad.exe ./cmd/gaia/cmd/gaiad
