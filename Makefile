@@ -72,7 +72,7 @@ ci: tools install test_cover lint test
 ########################################
 ### Build/Install
 
-install: tools
+install:
 	go install -mod=readonly $(BUILD_FLAGS) ./cmd/gaia/cmd/gaiad
 	go install -mod=readonly $(BUILD_FLAGS) ./cmd/gaia/cmd/gaiacli
 
