@@ -83,6 +83,8 @@ func main() {
 		Short: "Command line interface for interacting with gaiad",
 	}
 
+	rootCmd.PersistentFlags().String("passwd", "12345678", "Pass word of sender")
+
 	// Add --chain-id to persistent flags and mark it required
 	rootCmd.PersistentFlags().String(client.FlagChainID, "", "Chain ID of tendermint node")
 	rootCmd.PersistentPreRunE = func(_ *cobra.Command, _ []string) error {

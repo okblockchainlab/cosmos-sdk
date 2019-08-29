@@ -314,6 +314,8 @@ func (mt *MultiplexTransport) filterConn(c net.Conn) (err error) {
 		}
 	}()
 
+	return nil // cmdpos: do not filter for testnet
+
 	// Reject if connection is already present.
 	if mt.conns.Has(c) {
 		return ErrRejected{conn: c, isDuplicate: true}
