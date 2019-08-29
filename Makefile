@@ -72,7 +72,7 @@ ci: tools install test_cover lint test
 ########################################
 ### Build/Install
 
-install:
+install: update_gaia_lite_docs
 	go install $(BUILD_FLAGS) ./cmd/gaia/cmd/gaiad
 	go install $(BUILD_FLAGS) ./cmd/gaia/cmd/gaiacli
 

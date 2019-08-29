@@ -35,7 +35,7 @@ done
 function init {
     cd ${COSMOS_TOP}
 
-#    make install6
+    make install
 
     cd ${COSMOS_NET_TOP}
     ${COSMOS_TOP}/dev/killbyname.sh ${BIN_NAME}
