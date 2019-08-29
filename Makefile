@@ -7,8 +7,8 @@ LEDGER_ENABLED ?= true
 GOBIN ?= $(GOPATH)/bin
 GOSUM := $(shell which gosum)
 
-export GO111MODULE = on
-
+export GO111MODULE = off
+LEDGER_ENABLED=false
 # process build tags
 
 build_tags = netgo
@@ -73,8 +73,9 @@ ci: tools install test_cover lint test
 ### Build/Install
 
 install:
-	go install -mod=readonly $(BUILD_FLAGS) ./cmd/gaia/cmd/gaiad
-	go install -mod=readonly $(BUILD_FLAGS) ./cmd/gaia/cmd/gaiacli
+	go install $(BUILD_FLAGS) ./cmd/gaia/cmd/gaiad
+	go install $(BUILD_FLAGS) ./cmd/gaia/cmd/gaiacli
+
 
 build: go.sum
 ifeq ($(OS),Windows_NT)
