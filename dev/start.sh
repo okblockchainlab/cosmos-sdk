@@ -3,6 +3,8 @@
 /killbyname.sh gaiad
 /killbyname.sh "gaiacli rest-server"
 
+rm nohup.out
+
 (cd .. && make install)
 
 rm -rf cache
