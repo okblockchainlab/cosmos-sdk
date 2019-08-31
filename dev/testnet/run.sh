@@ -1,6 +1,6 @@
 #!/bin/bash
 
-/killbyname.sh "gaiacli rest-server"
+../killbyname.sh "gaiacli rest-server"
 
 ./testnet.sh -i -s -n 4
 
