@@ -113,7 +113,7 @@ func CreateAddr(t *testing.T, name, password string, kb crkeys.Keybase) (sdk.Acc
 		seed string
 	)
 
-	info, seed, err = kb.CreateMnemonic(name, crkeys.English, password, crkeys.Secp256k1)
+	info, seed, err = kb.CreateMnemonic(name, crkeys.English, password, crkeys.Secp256k1, "")
 	require.NoError(t, err)
 
 	return sdk.AccAddress(info.GetPubKey().Address()), seed
@@ -133,7 +133,7 @@ func CreateAddrs(t *testing.T, kb crkeys.Keybase, numAddrs int) (addrs []sdk.Acc
 	for i := 0; i < numAddrs; i++ {
 		name := fmt.Sprintf("test%d", i)
 		password := "1234567890"
-		info, seed, err = kb.CreateMnemonic(name, crkeys.English, password, crkeys.Secp256k1)
+		info, seed, err = kb.CreateMnemonic(name, crkeys.English, password, crkeys.Secp256k1, "")
 		require.NoError(t, err)
 		addrSeeds = append(addrSeeds, AddrSeed{Address: sdk.AccAddress(info.GetPubKey().Address()), Seed: seed, Name: name, Password: password})
 	}
@@ -695,7 +695,7 @@ func doTransferWithGas(
 	kb := crkeys.NewInMemory()
 
 	receiveInfo, _, err := kb.CreateMnemonic(
-		"receive_address", crkeys.English, gapp.DefaultKeyPass, crkeys.SigningAlgo("secp256k1"),
+		"receive_address", crkeys.English, gapp.DefaultKeyPass, crkeys.SigningAlgo("secp256k1"), "",
 	)
 	require.Nil(t, err)
 
@@ -742,7 +742,7 @@ func doTransferWithGasAccAuto(
 	acc := getAccount(t, port, addr)
 
 	receiveInfo, _, err := kb.CreateMnemonic(
-		"receive_address", crkeys.English, gapp.DefaultKeyPass, crkeys.SigningAlgo("secp256k1"),
+		"receive_address", crkeys.English, gapp.DefaultKeyPass, crkeys.SigningAlgo("secp256k1"), "",
 	)
 	require.Nil(t, err)
 

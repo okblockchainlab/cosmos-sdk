@@ -5,7 +5,6 @@ gaiacli config trust-node true
 gaiacli config output json
 gaiacli config indent true
 
-
 #mnemonicCaptain
 #depart neither they audit pen exile fire smart tongue express blanket burden culture shove curve address together pottery suggest lady sell clap seek whisper
 #prikey
@@ -13,6 +12,13 @@ gaiacli config indent true
 #address
 #cosmos1hg40dv5e237qy28vtyum52ygke32ez35hm307h
 
+#cosmos1y5cj26cexle8mrpxfksnly2djzxx79zq00a6tz
+gaiacli keys add --recover val << EOF
+y
+sentence deputy little switch fiction balcony hollow iron net index sound hollow scare attitude only cushion best candy wonder phone napkin sketch announce derive
+EOF
+
+exit
 gaiacli keys add --recover 307  << EOF
 12345678
 depart neither they audit pen exile fire smart tongue express blanket burden culture shove curve address together pottery suggest lady sell clap seek whisper

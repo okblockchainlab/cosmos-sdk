@@ -95,6 +95,36 @@ Example:
 }
 
 
+
+var (
+	testnetAccountList = []string{
+		"depart neither they audit pen exile fire smart tongue express blanket burden culture shove curve address together pottery suggest lady sell clap seek whisper",
+		"country live width exotic behind mad belt bachelor later outside forget rude pudding material orbit shoot kind curve endless prosper make exotic welcome maple",
+		"one neither they audit pen exile fire smart tongue express blanket burden culture shove curve address together pottery suggest lady sell clap seek whisper",
+		"two neither they audit pen exile fire smart tongue express blanket burden culture shove curve address together pottery suggest lady sell clap seek whisper",
+		"three neither they audit pen exile fire smart tongue express blanket burden culture shove curve address together pottery suggest lady sell clap seek whisper",
+		"four neither they audit pen exile fire smart tongue express blanket burden culture shove curve address together pottery suggest lady sell clap seek whisper",
+		"five neither they audit pen exile fire smart tongue express blanket burden culture shove curve address together pottery suggest lady sell clap seek whisper",
+		"six neither they audit pen exile fire smart tongue express blanket burden culture shove curve address together pottery suggest lady sell clap seek whisper",
+		"round beach biology badge loyal guilt trust resource taste want candy open scrub raw thing true under another crowd grab muscle finish afford fox",
+		"owner antique cheap ticket frozen icon pluck salmon mushroom machine lock cream recall blind deliver change high hurt ensure robust sting coin sell scare",
+		"owner hamster local fork palm excite soul exercise frequent dream nice comic design maze harsh clog start find umbrella battle live priority tuna reform",
+		"snack frost detect denial must mobile fine custom anchor improve fashion mask guide escape defense answer dismiss code head display prepare capable bacon nose",
+		//"",
+		//"",
+		//"",
+		//"",
+	}
+)
+
+func getTestnetMnemonic(index int) string {
+	if len(testnetAccountList) - 1 < index {
+		return ""
+	}
+
+	return testnetAccountList[index]
+}
+
 func addAccount(address string, amount int64, accs []app.GenesisAccount) []app.GenesisAccount{
 	addr, err := sdk.AccAddressFromBech32(address)
 	if err != nil {
@@ -207,7 +237,7 @@ func initTestnet(config *tmconfig.Config, cdc *codec.Codec) error {
 			keyPass = app.DefaultKeyPass
 		}
 
-		addr, secret, err := server.GenerateSaveCoinKey(clientDir, nodeDirName, keyPass, true)
+		addr, secret, err := server.GenerateSaveCoinKey(clientDir, nodeDirName, keyPass, true, getTestnetMnemonic(i))
 		if err != nil {
 			_ = os.RemoveAll(outDir)
 			return err
@@ -217,6 +247,7 @@ func initTestnet(config *tmconfig.Config, cdc *codec.Codec) error {
 		fmt.Printf("clientDir: [%s]\n", clientDir)
 		fmt.Printf("addr: [%s]\n", addr.String())
 		fmt.Printf("secret: [%s]\n\n", secret)
+		//fmt.Printf("%s\n", secret)
 
 		info := map[string]string{"secret": secret}
 
