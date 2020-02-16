@@ -3,11 +3,11 @@ PACKAGES_SIMTEST=$(shell go list ./... | grep '/simulation')
 VERSION := $(shell echo $(shell git describe --tags) | sed 's/^v//')
 COMMIT := $(shell git log -1 --format='%H')
 CAT := $(if $(filter $(OS),Windows_NT),type,cat)
-LEDGER_ENABLED ?= true
+LEDGER_ENABLED ?= false
 GOBIN ?= $(GOPATH)/bin
 GOSUM := $(shell which gosum)
 
-export GO111MODULE = on
+export GO111MODULE = off
 
 # process build tags
 
@@ -89,7 +89,11 @@ build-linux: go.sum
 update_gaia_lite_docs:
 	@statik -src=client/lcd/swagger-ui -dest=client/lcd -f
 
-install: go.sum check-ledger update_gaia_lite_docs
+install: update_gaia_lite_docs
+	go install  $(BUILD_FLAGS) ./cmd/gaia/cmd/gaiad
+	go install  $(BUILD_FLAGS) ./cmd/gaia/cmd/gaiacli
+
+install2: go.sum check-ledger update_gaia_lite_docs
 	go install -mod=readonly $(BUILD_FLAGS) ./cmd/gaia/cmd/gaiad
 	go install -mod=readonly $(BUILD_FLAGS) ./cmd/gaia/cmd/gaiacli
 	go install -mod=readonly $(BUILD_FLAGS) ./cmd/gaia/cmd/gaiareplay
