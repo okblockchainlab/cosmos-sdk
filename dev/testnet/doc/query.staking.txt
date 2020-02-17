@@ -1,0 +1,32 @@
+Querying commands for the staking module
+
+Usage:
+  gaiacli query staking [command]
+
+Available Commands:
+  delegation                 Query a delegation based on address and validator address
+  delegations                Query all delegations made by one delegator
+  unbonding-delegation       Query an unbonding-delegation record based on delegator and validator address
+  unbonding-delegations      Query all unbonding-delegations records for one delegator
+  redelegation               Query a redelegation record based on delegator and a source and destination validator address
+  redelegations              Query all redelegations records for one delegator
+  validator                  Query a validator
+  validators                 Query for all validators
+  delegations-to             Query all delegations made to one validator
+  unbonding-delegations-from Query all unbonding delegatations from a validator
+  redelegations-from         Query all outgoing redelegatations from a validator
+  params                     Query the current staking parameters information
+  pool                       Query the current staking pool values
+
+Flags:
+  -h, --help   help for staking
+
+Global Flags:
+      --chain-id string   Chain ID of tendermint node
+  -e, --encoding string   Binary encoding (hex|b64|btc) (default "hex")
+      --home string       directory for config and data (default "/Users/oak/.gaiacli")
+  -o, --output string     Output format (text|json) (default "text")
+      --passwd string     Pass word of sender (default "12345678")
+      --trace             print out full stack trace on errors
+
+Use "gaiacli query staking [command] --help" for more information about a command.
