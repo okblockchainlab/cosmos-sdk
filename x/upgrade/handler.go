@@ -12,8 +12,8 @@ import (
 // It enables SoftwareUpgradeProposal to propose an Upgrade, and CancelSoftwareUpgradeProposal
 // to abort a previously voted upgrade.
 func NewSoftwareUpgradeProposalHandler(k keeper.Keeper) govtypes.Handler {
-	return func(ctx sdk.Context, content govtypes.Content) error {
-		switch c := content.(type) {
+	return func(ctx sdk.Context, p *govtypes.Proposal) error {
+		switch c := p.GetContent().(type) {
 		case *types.SoftwareUpgradeProposal:
 			return handleSoftwareUpgradeProposal(ctx, k, c)
 

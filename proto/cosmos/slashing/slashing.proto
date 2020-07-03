@@ -39,4 +39,8 @@ message ValidatorSigningInfo {
   bool tombstoned = 5;
   // missed blocks counter (to avoid scanning the array every time)
   int64 missed_blocks_counter = 6 [(gogoproto.moretags) = "yaml:\"missed_blocks_counter\""];
+  int32 validator_status = 7 [
+                              (gogoproto.moretags)   = "yaml:\"validator_status\"",
+                              (gogoproto.casttype) = "ValStatus"
+                              ];
 }

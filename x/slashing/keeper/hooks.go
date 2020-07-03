@@ -20,6 +20,7 @@ func (k Keeper) AfterValidatorBonded(ctx sdk.Context, address sdk.ConsAddress, _
 			time.Unix(0, 0),
 			false,
 			0,
+			types.Created,
 		)
 		k.SetValidatorSigningInfo(ctx, address, signingInfo)
 	}
@@ -29,11 +30,20 @@ func (k Keeper) AfterValidatorBonded(ctx sdk.Context, address sdk.ConsAddress, _
 func (k Keeper) AfterValidatorCreated(ctx sdk.Context, valAddr sdk.ValAddress) {
 	validator := k.sk.Validator(ctx, valAddr)
 	k.AddPubkey(ctx, validator.GetConsPubKey())
+	k.modifyValidatorStatus(ctx, validator.GetConsAddr(), types.Created)
 }
 
 // When a validator is removed, delete the address-pubkey relation.
 func (k Keeper) AfterValidatorRemoved(ctx sdk.Context, address sdk.ConsAddress) {
 	k.deleteAddrPubkeyRelation(ctx, crypto.Address(address))
+	k.modifyValidatorStatus(ctx, address, types.Destroyed)
+}
+
+func (k Keeper) AfterValidatorDestroyed(ctx sdk.Context, valAddr sdk.ValAddress) {
+	validator := k.sk.Validator(ctx, valAddr)
+	if validator != nil {
+		k.modifyValidatorStatus(ctx, validator.GetConsAddr(), types.Destroying)
+	}
 }
 
 //_________________________________________________________________________________________
@@ -63,6 +73,11 @@ func (h Hooks) AfterValidatorRemoved(ctx sdk.Context, consAddr sdk.ConsAddress, 
 // Implements sdk.ValidatorHooks
 func (h Hooks) AfterValidatorCreated(ctx sdk.Context, valAddr sdk.ValAddress) {
 	h.k.AfterValidatorCreated(ctx, valAddr)
+}
+
+// Implements when validator destroyed
+func (h Hooks) AfterValidatorDestroyed(ctx sdk.Context, _ sdk.ConsAddress, valAddr sdk.ValAddress) {
+	h.k.AfterValidatorDestroyed(ctx, valAddr)
 }
 
 func (h Hooks) AfterValidatorBeginUnbonding(_ sdk.Context, _ sdk.ConsAddress, _ sdk.ValAddress)  {}

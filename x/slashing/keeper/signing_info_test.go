@@ -27,6 +27,7 @@ func TestGetSetValidatorSigningInfo(t *testing.T) {
 		time.Unix(2, 0),
 		false,
 		int64(10),
+		types.Created,
 	)
 	app.SlashingKeeper.SetValidatorSigningInfo(ctx, sdk.ConsAddress(addrDels[0]), newInfo)
 	info, found = app.SlashingKeeper.GetValidatorSigningInfo(ctx, sdk.ConsAddress(addrDels[0]))
@@ -64,6 +65,7 @@ func TestTombstoned(t *testing.T) {
 		time.Unix(2, 0),
 		false,
 		int64(10),
+		types.Created,
 	)
 	app.SlashingKeeper.SetValidatorSigningInfo(ctx, sdk.ConsAddress(addrDels[0]), newInfo)
 
@@ -87,6 +89,7 @@ func TestJailUntil(t *testing.T) {
 		time.Unix(2, 0),
 		false,
 		int64(10),
+		types.Created,
 	)
 	app.SlashingKeeper.SetValidatorSigningInfo(ctx, sdk.ConsAddress(addrDels[0]), newInfo)
 	app.SlashingKeeper.JailUntil(ctx, sdk.ConsAddress(addrDels[0]), time.Unix(253402300799, 0).UTC())

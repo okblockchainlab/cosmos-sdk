@@ -74,7 +74,7 @@ func RandomFees(r *rand.Rand, ctx sdk.Context, spendableCoins sdk.Coins) (sdk.Co
 		return nil, nil
 	}
 
-	amt, err := RandPositiveInt(r, randCoin.Amount)
+	amt, err := RandPositiveInt(r, sdk.NewIntFromBigInt(randCoin.Amount.BigInt()))
 	if err != nil {
 		return nil, err
 	}

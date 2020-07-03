@@ -453,7 +453,7 @@ func TestBaseAppOptionSeal(t *testing.T) {
 		app.SetFauxMerkleMode()
 	})
 	require.Panics(t, func() {
-		app.SetRouter(NewRouter())
+		app.SetRouter(NewRouter(), nil)
 	})
 }
 
@@ -1644,7 +1644,7 @@ func TestWithRouter(t *testing.T) {
 	// test increments in the handler
 	deliverKey := []byte("deliver-key")
 	routerOpt := func(bapp *BaseApp) {
-		bapp.SetRouter(&testCustomRouter{routes: sync.Map{}})
+		bapp.SetRouter(&testCustomRouter{routes: sync.Map{}}, nil)
 		r := sdk.NewRoute(routeMsgCounter, handlerMsgCounter(t, capKey1, deliverKey))
 		bapp.Router().AddRoute(r)
 	}

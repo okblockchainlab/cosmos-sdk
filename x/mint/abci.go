@@ -1,51 +1,71 @@
 package mint
 
 import (
+	"fmt"
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/mint/keeper"
 	"github.com/cosmos/cosmos-sdk/x/mint/types"
+	"strconv"
 )
 
+func disableMining(minter *types.Minter) {
+	minter.Inflation = sdk.ZeroDec()
+}
+
+var setInflationHandler func(minter *types.Minter)
+
 // BeginBlocker mints new tokens for the previous block.
-func BeginBlocker(ctx sdk.Context, k keeper.Keeper) {
+func beginBlocker(ctx sdk.Context, k keeper.Keeper) {
+	logger := ctx.Logger().With("module", "mint")
 	defer telemetry.ModuleMeasureSince(types.ModuleName, telemetry.MetricKeyBeginBlocker)
 
 	// fetch stored minter & params
-	minter := k.GetMinter(ctx)
 	params := k.GetParams(ctx)
+	minter := k.GetMinterCustom(ctx)
+	if ctx.BlockHeight() == 0 || uint64(ctx.BlockHeight()) > minter.NextBlockToUpdate {
+		k.UpdateMinterCustom(ctx, &minter, params)
+	}
 
-	// recalculate inflation rate
-	totalStakingSupply := k.StakingTokenSupply(ctx)
-	bondedRatio := k.BondedRatio(ctx)
-	minter.Inflation = minter.NextInflationRate(params, bondedRatio)
-	minter.AnnualProvisions = minter.NextAnnualProvisions(params, totalStakingSupply)
-	k.SetMinter(ctx, minter)
+	logger.Debug(fmt.Sprintf(
+		"total supply <%v>, "+
+			"annual provisions <%v>, "+
+			"params <%v>, "+
+			"minted this block <%v>, "+
+			"next block to update minted per block <%v>, ",
+		sdk.NewDecCoinFromDec(params.MintDenom, k.StakingTokenSupply(ctx)),
+		sdk.NewDecCoinFromDec(params.MintDenom, minter.AnnualProvisions),
+		params,
+		minter.MintedPerBlock,
+		minter.NextBlockToUpdate))
 
-	// mint coins, update supply
-	mintedCoin := minter.BlockProvision(params)
-	mintedCoins := sdk.NewCoins(mintedCoin)
-
-	err := k.MintCoins(ctx, mintedCoins)
+	err := k.MintCoins(ctx, minter.MintedPerBlock)
 	if err != nil {
 		panic(err)
 	}
 
 	// send the minted coins to the fee collector account
-	err = k.AddCollectedFees(ctx, mintedCoins)
+	err = k.AddCollectedFees(ctx, minter.MintedPerBlock)
 	if err != nil {
 		panic(err)
 	}
 
-	defer telemetry.ModuleSetGauge(types.ModuleName, float32(mintedCoin.Amount.Int64()), "minted_tokens")
+	if mintedCnt, err := strconv.ParseFloat(minter.MintedPerBlock.AmountOf(sdk.DefaultBondDenom).String(), 32); err != nil {
+		defer telemetry.ModuleSetGauge(types.ModuleName, float32(mintedCnt), "minted_tokens")
+	}
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			types.EventTypeMint,
-			sdk.NewAttribute(types.AttributeKeyBondedRatio, bondedRatio.String()),
-			sdk.NewAttribute(types.AttributeKeyInflation, minter.Inflation.String()),
+			sdk.NewAttribute(types.AttributeKeyInflation, params.InflationRate.String()),
 			sdk.NewAttribute(types.AttributeKeyAnnualProvisions, minter.AnnualProvisions.String()),
-			sdk.NewAttribute(sdk.AttributeKeyAmount, mintedCoin.Amount.String()),
+			sdk.NewAttribute(sdk.AttributeKeyAmount, minter.MintedPerBlock.String()),
 		),
 	)
+}
+
+// BeginBlocker mints new tokens for the previous block.
+func BeginBlocker(ctx sdk.Context, k keeper.Keeper) {
+	setInflationHandler = disableMining
+	beginBlocker(ctx, k)
 }

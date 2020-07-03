@@ -149,10 +149,10 @@ func CollectStdTxs(cdc codec.JSONMarshaler, moniker, genTxsDir string,
 			return appGenTxs, persistentPeers, fmt.Errorf("account %s balance not in genesis state: %+v", valAddr, balancesMap)
 		}
 
-		if delBal.GetCoins().AmountOf(msg.Value.Denom).LT(msg.Value.Amount) {
+		if delBal.GetCoins().AmountOf(sdk.DefaultBondDenom).LT(msg.MinSelfDelegation.ToDec()) {
 			return appGenTxs, persistentPeers, fmt.Errorf(
 				"insufficient fund for delegation %v: %v < %v",
-				delBal.GetAddress().String(), delBal.GetCoins().AmountOf(msg.Value.Denom), msg.Value.Amount,
+				delBal.GetAddress().String(), delBal.GetCoins().AmountOf(sdk.DefaultBondDenom), msg.MinSelfDelegation,
 			)
 		}
 

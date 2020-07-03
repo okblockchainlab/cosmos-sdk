@@ -87,7 +87,7 @@ func (k Keeper) createOutgoingPacket(
 		coins := make(sdk.Coins, len(amount))
 		for i, coin := range amount {
 			if strings.HasPrefix(coin.Denom, prefix) {
-				coins[i] = sdk.NewCoin(coin.Denom[len(prefix):], coin.Amount)
+				coins[i] = sdk.NewDecCoinFromDec(coin.Denom[len(prefix):], coin.Amount)
 			} else {
 				coins[i] = coin
 			}
@@ -189,7 +189,7 @@ func (k Keeper) OnRecvPacket(ctx sdk.Context, packet channeltypes.Packet, data t
 				"%s doesn't contain the prefix '%s'", coin.Denom, prefix,
 			)
 		}
-		coins[i] = sdk.NewCoin(coin.Denom[len(prefix):], coin.Amount)
+		coins[i] = sdk.NewDecCoinFromDec(coin.Denom[len(prefix):], coin.Amount)
 	}
 
 	// unescrow tokens
@@ -232,7 +232,7 @@ func (k Keeper) refundPacketAmount(ctx sdk.Context, packet channeltypes.Packet, 
 			if !strings.HasPrefix(coin.Denom, prefix) {
 				return sdkerrors.Wrapf(sdkerrors.ErrInvalidCoins, "%s doesn't contain the prefix '%s'", coin.Denom, prefix)
 			}
-			coins[i] = sdk.NewCoin(coin.Denom[len(prefix):], coin.Amount)
+			coins[i] = sdk.NewDecCoinFromDec(coin.Denom[len(prefix):], coin.Amount)
 		}
 
 		// unescrow tokens back to sender

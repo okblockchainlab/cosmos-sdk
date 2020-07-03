@@ -221,7 +221,6 @@ func (svd SigVerificationDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simul
 		if !simulate && pubKey == nil {
 			return ctx, sdkerrors.Wrap(sdkerrors.ErrInvalidPubKey, "pubkey on account is not set")
 		}
-
 		// retrieve signer data
 		genesis := ctx.BlockHeight() == 0
 		chainID := ctx.ChainID()

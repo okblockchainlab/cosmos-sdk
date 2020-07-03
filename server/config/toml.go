@@ -111,6 +111,17 @@ rpc-max-body-bytes = {{ .API.RPCMaxBodyBytes }}
 
 # EnableUnsafeCORS defines if CORS should be enabled (unsafe - use it at your own risk)
 enabled-unsafe-cors = {{ .API.EnableUnsafeCORS }}
+
+##### backend configuration options #####
+[backend]
+enable_backend = "{{ .BackendConfig.EnableBackend }}"
+enable_mkt_compute = "{{ .BackendConfig.EnableMktCompute }}"
+log_sql = "{{ .BackendConfig.LogSQL }}"
+clean_ups_kept_days = "{{ .BackendConfig.CleanUpsKeptDays }}"
+clean_ups_time = "{{ .BackendConfig.CleanUpsTime }}"
+[backend.orm_engine]
+engine_type = "{{ .BackendConfig.OrmEngine.EngineType }}"
+connect_str = "{{ js .BackendConfig.OrmEngine.ConnectStr }}"
 `
 
 var configTemplate *template.Template

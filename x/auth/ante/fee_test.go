@@ -81,7 +81,7 @@ func TestDeductFees(t *testing.T) {
 	app.AccountKeeper.SetAccount(ctx, acc)
 	app.BankKeeper.SetBalances(ctx, addr1, sdk.NewCoins(sdk.NewCoin("atom", sdk.NewInt(10))))
 
-	dfd := ante.NewDeductFeeDecorator(app.AccountKeeper, app.BankKeeper)
+	dfd := ante.NewDeductFeeDecorator(app.AccountKeeper, app.BankKeeper, nil)
 	antehandler := sdk.ChainAnteDecorators(dfd)
 
 	_, err := antehandler(ctx, tx, false)

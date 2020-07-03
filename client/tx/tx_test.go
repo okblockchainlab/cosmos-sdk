@@ -124,7 +124,7 @@ func TestSign(t *testing.T) {
 
 	var from = "test_sign"
 
-	_, seed, err := kr.NewMnemonic(from, keyring.English, path, hd.Secp256k1)
+	_, seed, err := kr.NewMnemonic(from, keyring.English, path, hd.Secp256k1, "")
 	require.NoError(t, err)
 	require.NoError(t, kr.Delete(from))
 

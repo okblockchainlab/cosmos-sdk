@@ -363,14 +363,14 @@ func TestAnteHandlerFees(t *testing.T) {
 	modAcc := app.AccountKeeper.GetModuleAccount(ctx, types.FeeCollectorName)
 
 	require.True(t, app.BankKeeper.GetAllBalances(ctx, modAcc.GetAddress()).Empty())
-	require.True(sdk.IntEq(t, app.BankKeeper.GetAllBalances(ctx, addr1).AmountOf("atom"), sdk.NewInt(149)))
+	require.True(sdk.DecEq(t, app.BankKeeper.GetAllBalances(ctx, addr1).AmountOf("atom"), sdk.NewDec(149)))
 
 	app.AccountKeeper.SetAccount(ctx, acc1)
 	app.BankKeeper.SetBalances(ctx, addr1, sdk.NewCoins(sdk.NewInt64Coin("atom", 150)))
 	checkValidTx(t, anteHandler, ctx, tx, false)
 
-	require.True(sdk.IntEq(t, app.BankKeeper.GetAllBalances(ctx, modAcc.GetAddress()).AmountOf("atom"), sdk.NewInt(150)))
-	require.True(sdk.IntEq(t, app.BankKeeper.GetAllBalances(ctx, addr1).AmountOf("atom"), sdk.NewInt(0)))
+	require.True(sdk.DecEq(t, app.BankKeeper.GetAllBalances(ctx, modAcc.GetAddress()).AmountOf("atom"), sdk.NewDec(150)))
+	require.True(sdk.DecEq(t, app.BankKeeper.GetAllBalances(ctx, addr1).AmountOf("atom"), sdk.NewDec(0)))
 }
 
 // Test logic around memo gas consumption.
@@ -491,7 +491,7 @@ func TestAnteHandlerBadSignBytes(t *testing.T) {
 	fee2 := types.NewTestStdFee()
 	fee2.Gas += 100
 	fee3 := types.NewTestStdFee()
-	fee3.Amount[0].Amount = fee3.Amount[0].Amount.AddRaw(100)
+	fee3.Amount[0].Amount = fee3.Amount[0].Amount.Add(sdk.NewDec(100))
 
 	// test good tx and signBytes
 	privs, accnums, seqs := []crypto.PrivKey{priv1}, []uint64{0}, []uint64{0}

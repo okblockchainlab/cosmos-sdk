@@ -243,7 +243,7 @@ func NewTestNetwork(t *testing.T, cfg Config) *Network {
 		kb, err := keyring.New(sdk.KeyringServiceName(), keyring.BackendTest, clientDir, buf)
 		require.NoError(t, err)
 
-		addr, secret, err := server.GenerateSaveCoinKey(kb, nodeDirName, cfg.Passphrase, true)
+		addr, secret, err := server.GenerateSaveCoinKey(kb, nodeDirName, cfg.Passphrase, true, "")
 		require.NoError(t, err)
 
 		info := map[string]string{"secret": secret}

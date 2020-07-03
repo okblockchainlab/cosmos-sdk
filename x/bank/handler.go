@@ -47,7 +47,7 @@ func handleMsgSend(ctx sdk.Context, k keeper.Keeper, msg *types.MsgSend) (*sdk.R
 		for _, a := range msg.Amount {
 			telemetry.SetGaugeWithLabels(
 				[]string{"tx", "msg", "send"},
-				float32(a.Amount.Int64()),
+				float32(sdk.NewIntFromBigInt(a.Amount.BigInt()).Int64()),
 				[]metrics.Label{telemetry.NewLabel("denom", a.Denom)},
 			)
 		}

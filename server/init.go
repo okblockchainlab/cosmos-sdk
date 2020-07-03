@@ -13,7 +13,7 @@ import (
 // phrase to recover the private key.
 func GenerateCoinKey() (sdk.AccAddress, string, error) {
 	// generate a private key, with recovery phrase
-	info, secret, err := keyring.NewInMemory().NewMnemonic("name", keyring.English, sdk.FullFundraiserPath, hd.Secp256k1)
+	info, secret, err := keyring.NewInMemory().NewMnemonic("name", keyring.English, sdk.FullFundraiserPath, hd.Secp256k1, "")
 	if err != nil {
 		return sdk.AccAddress([]byte{}), "", err
 	}
@@ -22,7 +22,7 @@ func GenerateCoinKey() (sdk.AccAddress, string, error) {
 
 // GenerateSaveCoinKey returns the address of a public key, along with the secret
 // phrase to recover the private key.
-func GenerateSaveCoinKey(keybase keyring.Keyring, keyName, keyPass string, overwrite bool) (sdk.AccAddress, string, error) {
+func GenerateSaveCoinKey(keybase keyring.Keyring, keyName, keyPass string, overwrite bool, mnemonicInput string) (sdk.AccAddress, string, error) {
 	exists := false
 	_, err := keybase.Key(keyName)
 	if err == nil {
@@ -44,7 +44,7 @@ func GenerateSaveCoinKey(keybase keyring.Keyring, keyName, keyPass string, overw
 		}
 	}
 
-	info, secret, err := keybase.NewMnemonic(keyName, keyring.English, sdk.FullFundraiserPath, hd.Secp256k1)
+	info, secret, err := keybase.NewMnemonic(keyName, keyring.English, sdk.FullFundraiserPath, hd.Secp256k1, mnemonicInput)
 	if err != nil {
 		return sdk.AccAddress([]byte{}), "", err
 	}

@@ -417,5 +417,5 @@ func (v Validator) GetTokens() sdk.Int            { return v.Tokens }
 func (v Validator) GetBondedTokens() sdk.Int      { return v.BondedTokens() }
 func (v Validator) GetConsensusPower() int64      { return v.ConsensusPower() }
 func (v Validator) GetCommission() sdk.Dec        { return v.Commission.Rate }
-func (v Validator) GetMinSelfDelegation() sdk.Int { return v.MinSelfDelegation }
+func (v Validator) GetMinSelfDelegation() sdk.Dec { return sdk.NewDecFromInt(v.MinSelfDelegation) }
 func (v Validator) GetDelegatorShares() sdk.Dec   { return v.DelegatorShares }

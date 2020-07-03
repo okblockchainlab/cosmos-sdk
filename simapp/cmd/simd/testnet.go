@@ -182,7 +182,7 @@ func InitTestnet(
 		}
 
 		keyPass := clientkeys.DefaultKeyPass
-		addr, secret, err := server.GenerateSaveCoinKey(kb, nodeDirName, keyPass, true)
+		addr, secret, err := server.GenerateSaveCoinKey(kb, nodeDirName, keyPass, true, "")
 		if err != nil {
 			_ = os.RemoveAll(outputDir)
 			return err

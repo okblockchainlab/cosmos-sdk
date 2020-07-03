@@ -84,6 +84,7 @@ which accepts a path for the resulting pprof file.
 
 			ctx.Logger.Info("starting ABCI with Tendermint")
 
+			setPID(ctx)
 			err := startInProcess(ctx, cdc, appCreator)
 			return err
 		},
@@ -112,6 +113,7 @@ which accepts a path for the resulting pprof file.
 	viper.BindPFlag(FlagPruningKeepEvery, cmd.Flags().Lookup(FlagPruningKeepEvery))
 	viper.BindPFlag(FlagPruningInterval, cmd.Flags().Lookup(FlagPruningInterval))
 
+	registerOkchainPluginFlags(cmd)
 	// add support for all Tendermint-specific command line options
 	tcmd.AddNodeFlags(cmd)
 	return cmd

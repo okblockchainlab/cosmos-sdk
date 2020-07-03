@@ -96,6 +96,11 @@ type BaseApp struct { // nolint: maligned
 
 	// recovery handler for app.runTx method
 	runTxRecoveryMiddleware recoveryMiddleware
+
+	// version of protocol
+	ProtocolVersion int32
+
+	PostEndBlocker sdk.PostEndBlockHandler
 }
 
 // NewBaseApp returns a reference to an initialized BaseApp. It accepts a
@@ -537,6 +542,7 @@ func (app *BaseApp) runTx(mode runTxMode, txBytes []byte, tx sdk.Tx) (gInfo sdk.
 		return sdk.GasInfo{}, nil, err
 	}
 
+	var anteResult *sdk.Result
 	var events sdk.Events
 	if app.anteHandler != nil {
 		var (
@@ -570,6 +576,7 @@ func (app *BaseApp) runTx(mode runTxMode, txBytes []byte, tx sdk.Tx) (gInfo sdk.
 
 		// GasMeter expected to be set in AnteHandler
 		gasWanted = ctx.GasMeter().Limit()
+		anteResult = &sdk.Result{Events: anteCtx.EventManager().Events().ToABCIEvents()}
 
 		if err != nil {
 			return gInfo, nil, err
@@ -593,6 +600,17 @@ func (app *BaseApp) runTx(mode runTxMode, txBytes []byte, tx sdk.Tx) (gInfo sdk.
 		if len(events) > 0 {
 			// append the events in the order of occurrence
 			result.Events = append(events.ToABCIEvents(), result.Events...)
+		}
+
+		// Set fee tags, no for genesis block
+		_, _, sysFee := getFeeFromTags(ctx, anteResult)
+		i, j, busFee := getFeeFromTags(ctx, result)
+		if i >= 0 && j >= 0 { //modify fee event
+			result.Events[i].Attributes[j].Value = []byte(sysFee.Add(busFee...).String())
+		} else {
+			// Add new event for fee
+			feeEvent := abci.Event(sdk.NewEvent(sdk.EventTypeMessage, sdk.NewAttribute(sdk.AttributeKeyFee, sysFee.String())))
+			result.Events = append(result.Events, feeEvent)
 		}
 	}
 
@@ -640,6 +658,9 @@ func (app *BaseApp) runMsgs(ctx sdk.Context, msgs []sdk.Msg, mode runTxMode) (*s
 		// Note: Each message result's data must be length-prefixed in order to
 		// separate each result.
 		events = events.AppendEvents(msgEvents)
+
+		// TODO  temporary modification: hide the log.event
+		msgEvents = sdk.EmptyEvents()
 
 		txData.Data = append(txData.Data, &sdk.MsgData{MsgType: msg.Type(), Data: msgResult.Data})
 		msgLogs = append(msgLogs, sdk.NewABCIMessageLog(uint16(i), msgResult.Log, msgEvents))

@@ -1,8 +1,12 @@
 package types
 
 import (
+	"fmt"
 	"strings"
 
+	"github.com/gogo/protobuf/proto"
+
+	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
@@ -30,7 +34,7 @@ type Content interface {
 
 // Handler defines a function that handles a proposal after it has passed the
 // governance process.
-type Handler func(ctx sdk.Context, content Content) error
+type Handler func(ctx sdk.Context, proposal *Proposal) error
 
 // ValidateAbstract validates a proposal's abstract contents returning an error
 // if invalid.
@@ -52,4 +56,17 @@ func ValidateAbstract(c Content) error {
 	}
 
 	return nil
+}
+
+func ContentToAny(content Content) (*cdctypes.Any, error) {
+	msg, ok := content.(proto.Message)
+	if !ok {
+		return nil, fmt.Errorf("%T does not implement proto.Message", content)
+	}
+
+	any, err := cdctypes.NewAnyWithValue(msg)
+	if err != nil {
+		return nil, err
+	}
+	return any, nil
 }

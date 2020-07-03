@@ -28,8 +28,8 @@ build: go.sum
 
 build-sim: go.sum
 	mkdir -p $(BUILDDIR)
-	go build -mod=readonly $(BUILD_FLAGS) -o $(BUILDDIR) ./simapp/cmd/simd
-	go build -mod=readonly $(BUILD_FLAGS) -o $(BUILDDIR) ./simapp/cmd/simcli
+	go build $(BUILD_FLAGS) -o $(BUILDDIR) ./simapp/cmd/simd
+	go build $(BUILD_FLAGS) -o $(BUILDDIR) ./simapp/cmd/simcli
 
 build-sim-linux: go.sum
 	LEDGER_ENABLED=false GOOS=linux GOARCH=amd64 $(MAKE) build-sim

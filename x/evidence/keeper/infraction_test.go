@@ -59,8 +59,9 @@ func (suite *KeeperTestSuite) TestHandleDoubleSign() {
 	suite.True(suite.app.SlashingKeeper.IsTombstoned(ctx, sdk.ConsAddress(val.Address())))
 
 	// tokens should be decreased
+	// don't slashing tokens, just jail the validator
 	newTokens := suite.app.StakingKeeper.Validator(ctx, operatorAddr).GetTokens()
-	suite.True(newTokens.LT(oldTokens))
+	suite.True(newTokens.Equal(oldTokens))
 
 	// submit duplicate evidence
 	suite.app.EvidenceKeeper.HandleDoubleSign(ctx, evidence)

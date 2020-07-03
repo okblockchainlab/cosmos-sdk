@@ -2,6 +2,7 @@ package cli
 
 import (
 	"fmt"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -86,7 +87,7 @@ func GetAccountCmd(cdc *codec.Codec) *cobra.Command {
 
 			key, err := sdk.AccAddressFromBech32(args[0])
 			if err != nil {
-				return err
+				return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, fmt.Sprintf("invalid address：%s", args[0]))
 			}
 
 			acc, err := accGetter.GetAccount(clientCtx, key)

@@ -34,6 +34,12 @@ func (vbd ValidateBasicDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulat
 		return ctx, err
 	}
 
+	if ctx.IsCheckTx() && !simulate && ValMsgHandler != nil {
+		if err := ValMsgHandler(ctx, tx.GetMsgs()); err != nil {
+			return ctx, err
+		}
+	}
+
 	return next(ctx, tx, simulate)
 }
 

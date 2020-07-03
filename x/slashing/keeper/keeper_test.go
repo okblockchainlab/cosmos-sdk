@@ -71,7 +71,7 @@ func TestUnJailNotBonded(t *testing.T) {
 	require.True(t, validator.Jailed)
 
 	// verify we cannot unjail (yet)
-	require.Error(t, app.SlashingKeeper.Unjail(ctx, addr))
+	//require.Error(t, app.SlashingKeeper.Unjail(ctx, addr))
 
 	staking.EndBlocker(ctx, app.StakingKeeper)
 	ctx = ctx.WithBlockHeight(ctx.BlockHeight() + 1)
@@ -140,7 +140,7 @@ func TestHandleNewValidator(t *testing.T) {
 	require.Equal(t, sdk.Bonded, validator.GetStatus())
 	bondPool := app.StakingKeeper.GetBondedPool(ctx)
 	expTokens := sdk.TokensFromConsensusPower(100)
-	require.Equal(t, expTokens.Int64(), app.BankKeeper.GetBalance(ctx, bondPool.GetAddress(), app.StakingKeeper.BondDenom(ctx)).Amount.Int64())
+	require.Equal(t, expTokens.Int64(), app.BankKeeper.GetBalance(ctx, bondPool.GetAddress(), app.StakingKeeper.BondDenom(ctx)).Amount.RoundInt64())
 }
 
 // Test a jailed validator being "down" twice
@@ -185,8 +185,9 @@ func TestHandleAlreadyJailed(t *testing.T) {
 	require.Equal(t, sdk.Unbonding, validator.GetStatus())
 
 	// validator should have been slashed
-	resultingTokens := amt.Sub(sdk.TokensFromConsensusPower(1))
-	require.Equal(t, resultingTokens, validator.GetTokens())
+	// only jailed
+	//resultingTokens := amt.Sub(sdk.TokensFromConsensusPower(1))
+	require.Equal(t, amt, validator.GetTokens())
 
 	// another block missed
 	ctx = ctx.WithBlockHeight(height)
@@ -194,7 +195,7 @@ func TestHandleAlreadyJailed(t *testing.T) {
 
 	// validator should not have been slashed twice
 	validator, _ = app.StakingKeeper.GetValidatorByConsAddr(ctx, sdk.GetConsAddress(val))
-	require.Equal(t, resultingTokens, validator.GetTokens())
+	require.Equal(t, amt, validator.GetTokens())
 }
 
 // Test a validator dipping in and out of the validator set
@@ -225,6 +226,7 @@ func TestValidatorDippingInAndOut(t *testing.T) {
 	require.NotNil(t, res)
 
 	staking.EndBlocker(ctx, app.StakingKeeper)
+	maxMissed := app.SlashingKeeper.SignedBlocksWindow(ctx) - app.SlashingKeeper.MinSignedPerWindow(ctx)
 
 	// 100 first blocks OK
 	height := int64(0)
@@ -270,7 +272,7 @@ func TestValidatorDippingInAndOut(t *testing.T) {
 
 	// validator misses 500 more blocks, 501 total
 	latest := height
-	for ; height < latest+500; height++ {
+	for ; height < latest+maxMissed; height++ {
 		ctx = ctx.WithBlockHeight(height)
 		app.SlashingKeeper.HandleValidatorSignature(ctx, val.Address(), newPower, false)
 	}
@@ -307,7 +309,7 @@ func TestValidatorDippingInAndOut(t *testing.T) {
 
 	// validator misses 501 blocks
 	latest = height
-	for ; height < latest+501; height++ {
+	for ; height < latest+maxMissed+1; height++ {
 		ctx = ctx.WithBlockHeight(height)
 		app.SlashingKeeper.HandleValidatorSignature(ctx, val.Address(), newPower, false)
 	}

@@ -9,10 +9,21 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
+type ValStatus int32
+
+const (
+	Created             ValStatus = 0x00
+	Destroying          ValStatus = 0x01
+	Destroyed           ValStatus = 0x02
+	ValStatusCreated              = "Created"
+	ValStatusDestroying           = "Destroying"
+	ValStatusDestroyed            = "Destroyed"
+)
+
 // NewValidatorSigningInfo creates a new ValidatorSigningInfo instance
 func NewValidatorSigningInfo(
 	condAddr sdk.ConsAddress, startHeight, indexOffset int64,
-	jailedUntil time.Time, tombstoned bool, missedBlocksCounter int64,
+	jailedUntil time.Time, tombstoned bool, missedBlocksCounter int64, validatorStatus ValStatus,
 ) ValidatorSigningInfo {
 
 	return ValidatorSigningInfo{
@@ -22,6 +33,7 @@ func NewValidatorSigningInfo(
 		JailedUntil:         jailedUntil,
 		Tombstoned:          tombstoned,
 		MissedBlocksCounter: missedBlocksCounter,
+		ValidatorStatus:     validatorStatus,
 	}
 }
 

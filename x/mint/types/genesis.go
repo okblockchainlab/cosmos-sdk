@@ -2,12 +2,12 @@ package types
 
 // GenesisState - minter state
 type GenesisState struct {
-	Minter Minter `json:"minter" yaml:"minter"` // minter object
-	Params Params `json:"params" yaml:"params"` // inflation params
+	Minter MinterCustom `json:"minter_custom" yaml:"minter_custom"` // minter object
+	Params Params       `json:"params" yaml:"params"`               // inflation params
 }
 
 // NewGenesisState creates a new GenesisState object
-func NewGenesisState(minter Minter, params Params) GenesisState {
+func NewGenesisState(minter MinterCustom, params Params) GenesisState {
 	return GenesisState{
 		Minter: minter,
 		Params: params,
@@ -17,7 +17,7 @@ func NewGenesisState(minter Minter, params Params) GenesisState {
 // DefaultGenesisState creates a default GenesisState object
 func DefaultGenesisState() GenesisState {
 	return GenesisState{
-		Minter: DefaultInitialMinter(),
+		Minter: DefaultInitialMinterCustom(),
 		Params: DefaultParams(),
 	}
 }
@@ -29,5 +29,5 @@ func ValidateGenesis(data GenesisState) error {
 		return err
 	}
 
-	return ValidateMinter(data.Minter)
+	return ValidateMinterCustom(data.Minter)
 }

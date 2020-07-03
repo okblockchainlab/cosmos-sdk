@@ -31,7 +31,7 @@ func TestInMemoryCreateLedger(t *testing.T) {
 	pubKey := ledger.GetPubKey()
 	pk, err := sdk.Bech32ifyPubKey(sdk.Bech32PubKeyTypeAccPub, pubKey)
 	require.NoError(t, err)
-	require.Equal(t, "cosmospub1addwnpepqdszcr95mrqqs8lw099aa9h8h906zmet22pmwe9vquzcgvnm93eqygufdlv", pk)
+	require.Equal(t, "okchainpub1addwnpepqg94y3n0sdcg5w0vhjqgp6e2ux20hxpm2sdy59nnlcny76uc729fyquy75e", pk)
 
 	// Check that restoring the key gets the same results
 	restoredKey, err := kb.Key("some_account")
@@ -42,11 +42,11 @@ func TestInMemoryCreateLedger(t *testing.T) {
 	pubKey = restoredKey.GetPubKey()
 	pk, err = sdk.Bech32ifyPubKey(sdk.Bech32PubKeyTypeAccPub, pubKey)
 	require.NoError(t, err)
-	require.Equal(t, "cosmospub1addwnpepqdszcr95mrqqs8lw099aa9h8h906zmet22pmwe9vquzcgvnm93eqygufdlv", pk)
+	require.Equal(t, "okchainpub1addwnpepqg94y3n0sdcg5w0vhjqgp6e2ux20hxpm2sdy59nnlcny76uc729fyquy75e", pk)
 
 	path, err := restoredKey.GetPath()
 	require.NoError(t, err)
-	require.Equal(t, "44'/118'/3'/0/1", path.String())
+	require.Equal(t, "44'/996'/3'/0/1", path.String())
 }
 
 // TestSignVerify does some detailed checks on how we sign and validate
@@ -81,7 +81,7 @@ func TestSignVerifyKeyRingWithLedger(t *testing.T) {
 	require.True(t, i1.GetPubKey().VerifyBytes(d1, s1))
 	require.True(t, bytes.Equal(s1, s2))
 
-	localInfo, _, err := kb.NewMnemonic("test", English, types.FullFundraiserPath, hd.Secp256k1)
+	localInfo, _, err := kb.NewMnemonic("test", English, types.FullFundraiserPath, hd.Secp256k1, "")
 	require.NoError(t, err)
 	_, _, err = SignWithLedger(localInfo, d1)
 	require.Error(t, err)
@@ -110,7 +110,7 @@ func TestAltKeyring_SaveLedgerKey(t *testing.T) {
 	pubKey := ledger.GetPubKey()
 	pk, err := sdk.Bech32ifyPubKey(sdk.Bech32PubKeyTypeAccPub, pubKey)
 	require.NoError(t, err)
-	require.Equal(t, "cosmospub1addwnpepqdszcr95mrqqs8lw099aa9h8h906zmet22pmwe9vquzcgvnm93eqygufdlv", pk)
+	require.Equal(t, "okchainpub1addwnpepqg94y3n0sdcg5w0vhjqgp6e2ux20hxpm2sdy59nnlcny76uc729fyquy75e", pk)
 
 	// Check that restoring the key gets the same results
 	restoredKey, err := keyring.Key("some_account")
@@ -121,9 +121,9 @@ func TestAltKeyring_SaveLedgerKey(t *testing.T) {
 	pubKey = restoredKey.GetPubKey()
 	pk, err = sdk.Bech32ifyPubKey(sdk.Bech32PubKeyTypeAccPub, pubKey)
 	require.NoError(t, err)
-	require.Equal(t, "cosmospub1addwnpepqdszcr95mrqqs8lw099aa9h8h906zmet22pmwe9vquzcgvnm93eqygufdlv", pk)
+	require.Equal(t, "okchainpub1addwnpepqg94y3n0sdcg5w0vhjqgp6e2ux20hxpm2sdy59nnlcny76uc729fyquy75e", pk)
 
 	path, err := restoredKey.GetPath()
 	require.NoError(t, err)
-	require.Equal(t, "44'/118'/3'/0/1", path.String())
+	require.Equal(t, "44'/996'/3'/0/1", path.String())
 }

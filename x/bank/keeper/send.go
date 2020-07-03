@@ -163,7 +163,7 @@ func (k BaseSendKeeper) SubtractCoins(ctx sdk.Context, addr sdk.AccAddress, amt 
 
 	for _, coin := range amt {
 		balance := k.GetBalance(ctx, addr, coin.Denom)
-		locked := sdk.NewCoin(coin.Denom, lockedCoins.AmountOf(coin.Denom))
+		locked := sdk.NewDecCoinFromDec(coin.Denom, lockedCoins.AmountOf(coin.Denom))
 		spendable := balance.Sub(locked)
 
 		_, hasNeg := sdk.Coins{spendable}.SafeSub(sdk.Coins{coin})

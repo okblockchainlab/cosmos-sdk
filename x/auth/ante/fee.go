@@ -36,7 +36,7 @@ func (mfd MempoolFeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate b
 	// Ensure that the provided fees meet a minimum threshold for the validator,
 	// if this is a CheckTx. This is only for local mempool purposes, and thus
 	// is only ran on check tx.
-	if ctx.IsCheckTx() && !simulate {
+	if ctx.IsCheckTx() && !simulate && !isFree {
 		minGasPrices := ctx.MinGasPrices()
 		if !minGasPrices.IsZero() {
 			requiredFees := make(sdk.Coins, len(minGasPrices))
@@ -46,7 +46,7 @@ func (mfd MempoolFeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate b
 			glDec := sdk.NewDec(int64(gas))
 			for i, gp := range minGasPrices {
 				fee := gp.Amount.Mul(glDec)
-				requiredFees[i] = sdk.NewCoin(gp.Denom, fee.Ceil().RoundInt())
+				requiredFees[i] = sdk.NewDecCoinFromDec(gp.Denom, fee)
 			}
 
 			if !feeCoins.IsAnyGTE(requiredFees) {
@@ -92,12 +92,23 @@ func (dfd DeductFeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bo
 	}
 
 	// deduct the fees
-	if !feeTx.GetFee().IsZero() {
-		err = DeductFees(dfd.bankKeeper, ctx, feePayerAcc, feeTx.GetFee())
+	actualSysFee := feeTx.GetFee()
+	if isFree {
+		actualSysFee = sdk.ZeroFee().ToCoins()
+	}
+	if !feeTx.GetFee().IsZero() && !isFree {
+		err = DeductFees(dfd.bankKeeper, ctx, feePayerAcc, actualSysFee)
 		if err != nil {
 			return ctx, err
 		}
 	}
+
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			sdk.EventTypeMessage,
+			sdk.NewAttribute(sdk.AttributeKeyFee, actualSysFee.String()),
+		),
+	)
 
 	return next(ctx, tx, simulate)
 }

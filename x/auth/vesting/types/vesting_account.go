@@ -49,8 +49,8 @@ func (bva BaseVestingAccount) LockedCoinsFromVesting(vestingCoins sdk.Coins) sdk
 		vestingAmt := vestingCoin.Amount
 		delVestingAmt := bva.DelegatedVesting.AmountOf(vestingCoin.Denom)
 
-		max := sdk.MaxInt(vestingAmt.Sub(delVestingAmt), sdk.ZeroInt())
-		lockedCoin := sdk.NewCoin(vestingCoin.Denom, max)
+		max := sdk.MaxDec(vestingAmt.Sub(delVestingAmt), sdk.ZeroDec())
+		lockedCoin := sdk.NewDecCoinFromDec(vestingCoin.Denom, max)
 
 		if !lockedCoin.IsZero() {
 			lockedCoins = lockedCoins.Add(lockedCoin)
@@ -81,16 +81,16 @@ func (bva *BaseVestingAccount) TrackDelegation(balance, vestingCoins, amount sdk
 		// compute x and y per the specification, where:
 		// X := min(max(V - DV, 0), D)
 		// Y := D - X
-		x := sdk.MinInt(sdk.MaxInt(vestingAmt.Sub(delVestingAmt), sdk.ZeroInt()), coin.Amount)
+		x := sdk.MinDec(sdk.MaxDec(vestingAmt.Sub(delVestingAmt), sdk.ZeroDec()), coin.Amount)
 		y := coin.Amount.Sub(x)
 
 		if !x.IsZero() {
-			xCoin := sdk.NewCoin(coin.Denom, x)
+			xCoin := sdk.NewDecCoinFromDec(coin.Denom, x)
 			bva.DelegatedVesting = bva.DelegatedVesting.Add(xCoin)
 		}
 
 		if !y.IsZero() {
-			yCoin := sdk.NewCoin(coin.Denom, y)
+			yCoin := sdk.NewDecCoinFromDec(coin.Denom, y)
 			bva.DelegatedFree = bva.DelegatedFree.Add(yCoin)
 		}
 	}
@@ -118,16 +118,16 @@ func (bva *BaseVestingAccount) TrackUndelegation(amount sdk.Coins) {
 		// compute x and y per the specification, where:
 		// X := min(DF, D)
 		// Y := min(DV, D - X)
-		x := sdk.MinInt(delegatedFree, coin.Amount)
-		y := sdk.MinInt(delegatedVesting, coin.Amount.Sub(x))
+		x := sdk.MinDec(delegatedFree, coin.Amount)
+		y := sdk.MinDec(delegatedVesting, coin.Amount.Sub(x))
 
 		if !x.IsZero() {
-			xCoin := sdk.NewCoin(coin.Denom, x)
+			xCoin := sdk.NewDecCoinFromDec(coin.Denom, x)
 			bva.DelegatedFree = bva.DelegatedFree.Sub(sdk.Coins{xCoin})
 		}
 
 		if !y.IsZero() {
-			yCoin := sdk.NewCoin(coin.Denom, y)
+			yCoin := sdk.NewDecCoinFromDec(coin.Denom, y)
 			bva.DelegatedVesting = bva.DelegatedVesting.Sub(sdk.Coins{yCoin})
 		}
 	}
@@ -308,8 +308,8 @@ func (cva ContinuousVestingAccount) GetVestedCoins(blockTime time.Time) sdk.Coin
 	s := sdk.NewDec(x).Quo(sdk.NewDec(y))
 
 	for _, ovc := range cva.OriginalVesting {
-		vestedAmt := ovc.Amount.ToDec().Mul(s).RoundInt()
-		vestedCoins = append(vestedCoins, sdk.NewCoin(ovc.Denom, vestedAmt))
+		vestedAmt := ovc.Amount.Mul(s)
+		vestedCoins = append(vestedCoins, sdk.NewDecCoinFromDec(ovc.Denom, vestedAmt))
 	}
 
 	return vestedCoins

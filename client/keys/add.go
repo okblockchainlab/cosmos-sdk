@@ -35,9 +35,11 @@ const (
 	flagNoSort      = "nosort"
 	flagHDPath      = "hd-path"
 	flagKeyAlgo     = "algo"
+	flagMnemonic    = "mnemonic"
 
 	// DefaultKeyPass contains the default key password for genesis transactions
 	DefaultKeyPass = "12345678"
+	FlagKeyPass    = "passwd"
 )
 
 // AddKeyCommand defines a keys command to add a generated or recovered private key to keybase.
@@ -79,6 +81,8 @@ the flag --nosort is set.
 	cmd.Flags().Uint32(flagAccount, 0, "Account number for HD derivation")
 	cmd.Flags().Uint32(flagIndex, 0, "Address index number for HD derivation")
 	cmd.Flags().String(flagKeyAlgo, string(hd.Secp256k1Type), "Key signing algorithm to generate keys for")
+	cmd.Flags().BoolP(flagYes, "y", false, "Overwrite the existing account without confirmation")
+	cmd.Flags().StringP(flagMnemonic, "m", "", "Mnemonic words")
 
 	return cmd
 }
@@ -128,19 +132,22 @@ func RunAddCmd(cmd *cobra.Command, args []string, kb keyring.Keyring, inBuf *buf
 	if !viper.GetBool(flags.FlagDryRun) {
 		_, err = kb.Key(name)
 		if err == nil {
-			// account exists, ask for user confirmation
-			response, err2 := input.GetConfirmation(fmt.Sprintf("override the existing name %s", name), inBuf, cmd.ErrOrStderr())
-			if err2 != nil {
-				return err2
-			}
+			ask := !viper.GetBool(flagYes)
+			if ask {
+				// account exists, ask for user confirmation
+				response, err2 := input.GetConfirmation(fmt.Sprintf("override the existing name %s", name), inBuf, cmd.ErrOrStderr())
+				if err2 != nil {
+					return err2
+				}
 
-			if !response {
-				return errors.New("aborted")
-			}
+				if !response {
+					return errors.New("aborted")
+				}
 
-			err2 = kb.Delete(name)
-			if err2 != nil {
-				return err2
+				err2 = kb.Delete(name)
+				if err2 != nil {
+					return err2
+				}
 			}
 		}
 
@@ -219,7 +226,12 @@ func RunAddCmd(cmd *cobra.Command, args []string, kb keyring.Keyring, inBuf *buf
 	// Get bip39 mnemonic
 	var mnemonic, bip39Passphrase string
 
-	if interactive || viper.GetBool(flagRecover) {
+	inputMnemonic := viper.GetString(flagMnemonic)
+	if len(inputMnemonic) > 0 {
+		mnemonic = inputMnemonic
+	}
+
+	if len(mnemonic) == 0 && (interactive || viper.GetBool(flagRecover)) {
 		bip39Message := "Enter your bip39 mnemonic"
 		if !viper.GetBool(flagRecover) {
 			bip39Message = "Enter your bip39 mnemonic, or hit enter to generate one."

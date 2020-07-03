@@ -329,7 +329,7 @@ func randomDeposit(r *rand.Rand, ctx sdk.Context,
 		maxAmt = minDeposit[denomIndex].Amount
 	}
 
-	amount, err := simtypes.RandPositiveInt(r, maxAmt)
+	amount, err := simtypes.RandPositiveInt(r, sdk.NewIntFromBigInt(maxAmt.BigInt()))
 	if err != nil {
 		return nil, false, err
 	}

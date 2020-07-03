@@ -63,7 +63,7 @@ func handleMsgWithdrawDelegatorReward(ctx sdk.Context, msg *types.MsgWithdrawDel
 		for _, a := range amount {
 			telemetry.SetGaugeWithLabels(
 				[]string{"tx", "msg", "withdraw_reward"},
-				float32(a.Amount.Int64()),
+				float32(a.Amount.RoundInt64()),
 				[]metrics.Label{telemetry.NewLabel("denom", a.Denom)},
 			)
 		}
@@ -90,7 +90,7 @@ func handleMsgWithdrawValidatorCommission(ctx sdk.Context, msg *types.MsgWithdra
 		for _, a := range amount {
 			telemetry.SetGaugeWithLabels(
 				[]string{"tx", "msg", "withdraw_commission"},
-				float32(a.Amount.Int64()),
+				float32(a.Amount.RoundInt64()),
 				[]metrics.Label{telemetry.NewLabel("denom", a.Denom)},
 			)
 		}
@@ -124,8 +124,8 @@ func handleMsgFundCommunityPool(ctx sdk.Context, msg *types.MsgFundCommunityPool
 }
 
 func NewCommunityPoolSpendProposalHandler(k keeper.Keeper) govtypes.Handler {
-	return func(ctx sdk.Context, content govtypes.Content) error {
-		switch c := content.(type) {
+	return func(ctx sdk.Context, proposal *govtypes.Proposal) error {
+		switch c := proposal.GetContent().(type) {
 		case *types.CommunityPoolSpendProposal:
 			return keeper.HandleCommunityPoolSpendProposal(ctx, k, c)
 

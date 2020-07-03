@@ -82,11 +82,17 @@ func TestCannotUnjailUnlessMeetMinSelfDelegation(t *testing.T) {
 
 	require.True(t, app.StakingKeeper.Validator(ctx, addr).IsJailed())
 
+	validator, found := app.StakingKeeper.GetValidator(ctx, addr)
+	if found {
+		validator.MinSelfDelegation = sdk.NewInt(0)
+		app.StakingKeeper.SetValidator(ctx, validator)
+	}
+
 	// assert non-jailed validator can't be unjailed
 	res, err = slh(ctx, types.NewMsgUnjail(addr))
 	require.Error(t, err)
 	require.Nil(t, res)
-	require.True(t, errors.Is(types.ErrSelfDelegationTooLowToUnjail, err))
+	require.True(t, errors.Is(types.ErrMissingSelfDelegation, err))
 }
 
 func TestJailedValidatorDelegations(t *testing.T) {
@@ -115,7 +121,7 @@ func TestJailedValidatorDelegations(t *testing.T) {
 	staking.EndBlocker(ctx, app.StakingKeeper)
 
 	// set dummy signing info
-	newInfo := types.NewValidatorSigningInfo(consAddr, 0, 0, time.Unix(0, 0), false, 0)
+	newInfo := types.NewValidatorSigningInfo(consAddr, 0, 0, time.Unix(0, 0), false, 0, types.Created)
 	app.SlashingKeeper.SetValidatorSigningInfo(ctx, consAddr, newInfo)
 
 	// delegate tokens to the validator
@@ -140,6 +146,8 @@ func TestJailedValidatorDelegations(t *testing.T) {
 	validator, found := app.StakingKeeper.GetValidator(ctx, valAddr)
 	require.True(t, found)
 	require.True(t, validator.IsJailed())
+	validator.MinSelfDelegation = sdk.ZeroInt()
+	app.StakingKeeper.SetValidator(ctx, validator)
 
 	// verify the validator cannot unjail itself
 	res, err = slashing.NewHandler(app.SlashingKeeper)(ctx, types.NewMsgUnjail(valAddr))
@@ -152,6 +160,8 @@ func TestJailedValidatorDelegations(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, res)
 
+	validator.MinSelfDelegation = sdk.NewInt(1)
+	app.StakingKeeper.SetValidator(ctx, validator)
 	// verify the validator can now unjail itself
 	res, err = slashing.NewHandler(app.SlashingKeeper)(ctx, types.NewMsgUnjail(valAddr))
 	require.NoError(t, err)
@@ -231,7 +241,7 @@ func TestHandleAbsentValidator(t *testing.T) {
 	require.Equal(t, sdk.Bonded, validator.GetStatus())
 
 	bondPool := app.StakingKeeper.GetBondedPool(ctx)
-	require.True(sdk.IntEq(t, amt, app.BankKeeper.GetBalance(ctx, bondPool.GetAddress(), app.StakingKeeper.BondDenom(ctx)).Amount))
+	require.True(sdk.IntEq(t, amt, app.BankKeeper.GetBalance(ctx, bondPool.GetAddress(), app.StakingKeeper.BondDenom(ctx)).Amount.RoundInt()))
 
 	// 501st block missed
 	ctx = ctx.WithBlockHeight(height)
@@ -289,7 +299,7 @@ func TestHandleAbsentValidator(t *testing.T) {
 	require.Equal(t, sdk.Bonded, validator.GetStatus())
 
 	// validator should have been slashed
-	require.Equal(t, amt.Int64()-slashAmt, app.BankKeeper.GetBalance(ctx, bondPool.GetAddress(), app.StakingKeeper.BondDenom(ctx)).Amount.Int64())
+	require.Equal(t, amt.Int64()-slashAmt, app.BankKeeper.GetBalance(ctx, bondPool.GetAddress(), app.StakingKeeper.BondDenom(ctx)).Amount.RoundInt64())
 
 	// Validator start height should not have been changed
 	info, found = app.SlashingKeeper.GetValidatorSigningInfo(ctx, sdk.ConsAddress(val.Address()))
@@ -305,19 +315,10 @@ func TestHandleAbsentValidator(t *testing.T) {
 	validator, _ = app.StakingKeeper.GetValidatorByConsAddr(ctx, sdk.GetConsAddress(val))
 	require.Equal(t, sdk.Bonded, validator.GetStatus())
 
-	// 500 signed blocks
-	nextHeight := height + app.SlashingKeeper.MinSignedPerWindow(ctx) + 1
+	// maxmissed signed blocks
+	maxMissed := app.SlashingKeeper.SignedBlocksWindow(ctx) - app.SlashingKeeper.MinSignedPerWindow(ctx)
+	nextHeight := height + maxMissed + 1
 	for ; height < nextHeight; height++ {
-		ctx = ctx.WithBlockHeight(height)
-		app.SlashingKeeper.HandleValidatorSignature(ctx, val.Address(), power, false)
-	}
-
-	// end block
-	staking.EndBlocker(ctx, app.StakingKeeper)
-
-	// validator should be jailed again after 500 unsigned blocks
-	nextHeight = height + app.SlashingKeeper.MinSignedPerWindow(ctx) + 1
-	for ; height <= nextHeight; height++ {
 		ctx = ctx.WithBlockHeight(height)
 		app.SlashingKeeper.HandleValidatorSignature(ctx, val.Address(), power, false)
 	}

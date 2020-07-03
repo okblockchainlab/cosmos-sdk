@@ -100,7 +100,7 @@ func querySupplyOf(ctx sdk.Context, req abci.RequestQuery, k Keeper) ([]byte, er
 	}
 
 	amount := k.GetSupply(ctx).GetTotal().AmountOf(params.Denom)
-	supply := sdk.NewCoin(params.Denom, amount)
+	supply := sdk.NewDecCoinFromDec(params.Denom, amount)
 
 	bz, err := codec.MarshalJSONIndent(types.ModuleCdc, supply)
 	if err != nil {

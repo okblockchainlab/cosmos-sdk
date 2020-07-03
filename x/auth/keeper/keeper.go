@@ -24,7 +24,8 @@ type AccountKeeper struct {
 	permAddrs     map[string]types.PermissionsForAddress
 
 	// The prototypical AccountI constructor.
-	proto func() types.AccountI
+	proto    func() types.AccountI
+	observer ObserverI
 }
 
 // NewAccountKeeper returns a new sdk.AccountKeeper that uses go-amino to
@@ -219,3 +220,11 @@ func (ak AccountKeeper) UnmarshalAccountJSON(bz []byte) (types.AccountI, error) 
 }
 
 func (ak AccountKeeper) GetCodec() codec.Marshaler { return ak.cdc }
+
+type ObserverI interface {
+	OnAccountUpdated(acc types.AccountI)
+}
+
+func (k *AccountKeeper) SetObserverKeeper(observer ObserverI) {
+	k.observer = observer
+}

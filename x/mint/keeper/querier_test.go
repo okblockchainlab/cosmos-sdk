@@ -24,11 +24,11 @@ func TestNewQuerier(t *testing.T) {
 	_, err := querier(ctx, []string{types.QueryParameters}, query)
 	require.NoError(t, err)
 
-	_, err = querier(ctx, []string{types.QueryInflation}, query)
-	require.NoError(t, err)
-
-	_, err = querier(ctx, []string{types.QueryAnnualProvisions}, query)
-	require.NoError(t, err)
+	//_, err = querier(ctx, []string{types.QueryInflation}, query)
+	//require.NoError(t, err)
+	//
+	//_, err = querier(ctx, []string{types.QueryAnnualProvisions}, query)
+	//require.NoError(t, err)
 
 	_, err = querier(ctx, []string{"foo"}, query)
 	require.Error(t, err)

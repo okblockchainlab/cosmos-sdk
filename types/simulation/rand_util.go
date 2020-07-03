@@ -107,7 +107,7 @@ func RandSubsetCoins(r *rand.Rand, coins sdk.Coins) sdk.Coins {
 	// make sure at least one coin added
 	denomIdx := r.Intn(len(coins))
 	coin := coins[denomIdx]
-	amt, err := RandPositiveInt(r, coin.Amount)
+	amt, err := RandPositiveInt(r, sdk.NewIntFromBigInt(coin.Amount.BigInt()))
 	// malformed coin. 0 amt in coins
 	if err != nil {
 		return sdk.Coins{}
@@ -126,7 +126,7 @@ func RandSubsetCoins(r *rand.Rand, coins sdk.Coins) sdk.Coins {
 			continue
 		}
 
-		amt, err := RandPositiveInt(r, c.Amount)
+		amt, err := RandPositiveInt(r, sdk.NewIntFromBigInt(c.Amount.BigInt()))
 		// ignore errors and try another denom
 		if err != nil {
 			continue

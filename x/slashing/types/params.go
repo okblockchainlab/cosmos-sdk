@@ -10,14 +10,17 @@ import (
 
 // Default parameter namespace
 const (
-	DefaultSignedBlocksWindow   = int64(100)
+	DefaultParamspace           = ModuleName
+	DefaultSignedBlocksWindow   = int64(10000)
 	DefaultDowntimeJailDuration = 60 * 10 * time.Second
 )
 
 var (
-	DefaultMinSignedPerWindow      = sdk.NewDecWithPrec(5, 1)
-	DefaultSlashFractionDoubleSign = sdk.NewDec(1).Quo(sdk.NewDec(20))
-	DefaultSlashFractionDowntime   = sdk.NewDec(1).Quo(sdk.NewDec(100))
+	DefaultMinSignedPerWindow      = sdk.NewDecWithPrec(5, 2)
+	DefaultSlashFractionDoubleSign = sdk.ZeroDec()
+	DefaultSlashFractionDowntime   = sdk.ZeroDec()
+	//DefaultSlashFractionDoubleSign = sdk.NewDec(1).Quo(sdk.NewDec(20))
+	//DefaultSlashFractionDowntime   = sdk.NewDec(1).Quo(sdk.NewDec(100))
 )
 
 // Parameter store keys

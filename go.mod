@@ -43,4 +43,7 @@ require (
 	gopkg.in/yaml.v2 v2.3.0
 )
 
-replace github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.2-alpha.regen.4
+replace (
+	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.2-alpha.regen.4
+	github.com/tendermint/tendermint => github.com/okblockchainlab/tendermint v0.31.8-0.20200703104236-a9f6864248ec
+)

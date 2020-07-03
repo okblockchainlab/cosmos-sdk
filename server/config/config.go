@@ -78,7 +78,7 @@ type APIConfig struct {
 // Config defines the server's top level configuration
 type Config struct {
 	BaseConfig `mapstructure:",squash"`
-
+	BackendConfig *BackendConfig `mapstructure:"backend"`
 	// Telemetry defines the application telemetry configuration
 	Telemetry telemetry.Config `mapstructure:"telemetry"`
 	API       APIConfig        `mapstructure:"api"`
@@ -122,6 +122,7 @@ func DefaultConfig() *Config {
 			PruningKeepEvery:  "0",
 			PruningInterval:   "0",
 		},
+		BackendConfig: DefaultBackendConfig(),
 		Telemetry: telemetry.Config{
 			Enabled:      false,
 			GlobalLabels: [][]string{},
@@ -129,7 +130,7 @@ func DefaultConfig() *Config {
 		API: APIConfig{
 			Enable:             false,
 			Swagger:            false,
-			Address:            "tcp://0.0.0.0:1317",
+			Address:            "tcp://0.0.0.0:26659",
 			MaxOpenConnections: 1000,
 			RPCReadTimeout:     10,
 			RPCMaxBodyBytes:    1000000,

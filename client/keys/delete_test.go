@@ -38,7 +38,7 @@ func Test_runDeleteCmd(t *testing.T) {
 	require.NoError(t, err)
 	_, err = kb.NewAccount(fakeKeyName1, tests.TestMnemonic, "", path, hd.Secp256k1)
 	require.NoError(t, err)
-	_, _, err = kb.NewMnemonic(fakeKeyName2, keyring.English, sdk.FullFundraiserPath, hd.Secp256k1)
+	_, _, err = kb.NewMnemonic(fakeKeyName2, keyring.English, sdk.FullFundraiserPath, hd.Secp256k1, "")
 	require.NoError(t, err)
 
 	err = runDeleteCmd(deleteKeyCommand, []string{"blah"})

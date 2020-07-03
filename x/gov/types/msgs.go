@@ -105,6 +105,11 @@ func (m MsgSubmitProposal) ValidateBasic() error {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, m.InitialDeposit.String())
 	}
 
+	if len(m.InitialDeposit) != 1 || m.InitialDeposit[0].Denom != sdk.DefaultBondDenom || !m.InitialDeposit.IsValid() {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, fmt.Sprintf("must deposit %s but got %s",
+			sdk.DefaultBondDenom, m.InitialDeposit.String()))
+	}
+
 	content := m.GetContent()
 	if content == nil {
 		return sdkerrors.Wrap(ErrInvalidProposalContent, "missing content")

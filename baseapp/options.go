@@ -54,9 +54,9 @@ func (app *BaseApp) SetName(name string) {
 
 // SetParamStore sets a parameter store on the BaseApp.
 func (app *BaseApp) SetParamStore(ps ParamStore) {
-	if app.sealed {
-		panic("SetParamStore() on sealed BaseApp")
-	}
+	//if app.sealed {
+	//	panic("SetParamStore() on sealed BaseApp")
+	//}
 
 	app.paramStore = ps
 }
@@ -158,9 +158,10 @@ func (app *BaseApp) SetStoreLoader(loader StoreLoader) {
 }
 
 // SetRouter allows us to customize the router.
-func (app *BaseApp) SetRouter(router sdk.Router) {
-	if app.sealed {
-		panic("SetRouter() on sealed BaseApp")
-	}
+func (app *BaseApp) SetRouter(router sdk.Router, queryRouter sdk.QueryRouter) {
+	//if app.sealed {
+	//	panic("SetRouter() on sealed BaseApp")
+	//}
 	app.router = router
+	app.queryRouter = queryRouter
 }
